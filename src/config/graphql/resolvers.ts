@@ -1,3 +1,4 @@
-import { RecipeResolver } from "../../Resolver/RecipeResolver";
+import { RecipeResolver } from "../../resolver/RecipeResolver";
+import { UserResolver } from "../../resolver/UserResolver";
 
-export const resolvers = [RecipeResolver] as const;
+export const resolvers = [UserResolver, RecipeResolver] as const;

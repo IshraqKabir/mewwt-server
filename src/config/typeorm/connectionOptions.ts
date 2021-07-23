@@ -1,4 +1,6 @@
 import { ConnectionOptions } from "typeorm";
+import { AuthToken } from "../../model/AuthToken";
+import { User } from "../../model/User";
 
 export const connectionOptions: ConnectionOptions = {
     type: "postgres",
@@ -8,6 +10,8 @@ export const connectionOptions: ConnectionOptions = {
     password: "password",
     database: "test",
     entities: [
+        User,
+        AuthToken,
     ],
     synchronize: true,
     logging: true,

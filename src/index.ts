@@ -1,21 +1,30 @@
 import "reflect-metadata";
-import express from "express";
 import { buildSchema } from "type-graphql";
 import { resolvers } from "./config/graphql/resolvers";
-import jwt from "express-jwt";
-import { userInfo } from "os";
-import { ApolloServer } from "apollo-server";
+import { ApolloServer } from "apollo-server-express";
+import { createConnection } from "typeorm";
+import { connectionOptions } from "./config/typeorm/connectionOptions";
+import express from "express";
+
+// dotenv config
+import dotenv from "dotenv";
+dotenv.config();
 
 const PORT: number = 4000;
 
+const app = express();
+const path = "/graphql";
+
 const main = async () => {
+    await createConnection(connectionOptions);
+
     const schema = await buildSchema({
         resolvers: resolvers,
         authChecker: ({ context }) => {
             if (context.user) {
                 return true;
             }
-            
+
             return false;
         }
     })
@@ -30,15 +39,17 @@ const main = async () => {
                     roles: ["REGULAR"]
                 }
             }
+        },
+    });
 
-        }
+    await server.start();
+
+    server.applyMiddleware({ app, path })
+
+    app.listen({ port: PORT }, () => {
+        console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`);
     })
-
-    // Start the server
-    const { url } = await server.listen(PORT);
-    console.log(`Server is running, GraphQL Playground available at ${url}`);
 }
-
 
 main();
 
