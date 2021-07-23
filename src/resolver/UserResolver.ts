@@ -73,7 +73,7 @@ export class UserResolver {
         // store token for user
         const userAuthToken = jwt.sign({
             data: user,
-        }, 'secret', { expiresIn: "100y" });
+        }, process.env.TOKEN_SECRET as string, { expiresIn: "100y" });
 
         const authTokenRepo = connection.getRepository(AuthToken);
 
