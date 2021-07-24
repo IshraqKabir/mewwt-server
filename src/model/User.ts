@@ -1,3 +1,4 @@
+import { Exclude } from "class-transformer";
 import { Field, ID, ObjectType } from "type-graphql";
 import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { AuthToken } from "./AuthToken";
@@ -21,7 +22,8 @@ export class User {
     @Field()
     email: string;
 
-    @Column()
+    @Exclude()
+    @Column({ select: false })
     password: string;
 
     @OneToOne(() => AuthToken, authToken => authToken.user)

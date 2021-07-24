@@ -1,4 +1,4 @@
-import { Arg, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
 import { getConnection } from "typeorm";
 import { RegisterUserInput, UserRegisterResponse } from "../utils/validation/UserResolver/RegisterUserValidation";
 import { User } from "../model/User";
@@ -7,6 +7,9 @@ import bcrypt from "bcrypt";
 import { FieldError } from "../utils/validation/FieldError";
 import { AuthToken } from "../model/AuthToken";
 import jwt from "jsonwebtoken";
+import { TOKEN_SECRET } from "../config/consts";
+import { Response } from "express";
+import { ExpressContext } from "apollo-server-express";
 
 @Resolver()
 export class UserResolver {
@@ -18,7 +21,8 @@ export class UserResolver {
 
     @Mutation(() => UserRegisterResponse)
     async registerUser(
-        @Arg("data") data: RegisterUserInput
+        @Arg("data") data: RegisterUserInput,
+        @Ctx() { res }: ExpressContext
     ): Promise<UserRegisterResponse> {
         const {
             firstName,
@@ -72,8 +76,13 @@ export class UserResolver {
 
         // store token for user
         const userAuthToken = jwt.sign({
-            data: user,
-        }, process.env.TOKEN_SECRET as string, { expiresIn: "100y" });
+            data: {
+                id: user.id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+            },
+        }, TOKEN_SECRET, { expiresIn: "100y" });
 
         const authTokenRepo = connection.getRepository(AuthToken);
 
@@ -84,7 +93,6 @@ export class UserResolver {
         await authTokenRepo.save(authToken);
 
         user.authToken = authToken;
-
         return {
             data: user,
             errors: null,

@@ -14,5 +14,5 @@ export const connectionOptions: ConnectionOptions = {
         AuthToken,
     ],
     synchronize: true,
-    logging: true,
+    logging: false,
 }
