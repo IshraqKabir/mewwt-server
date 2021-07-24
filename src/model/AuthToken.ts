@@ -13,7 +13,7 @@ export class AuthToken {
     @Field()
     token: string;
 
-    @OneToOne(() => User)
+    @OneToOne(() => User, user => user.authToken)
     @JoinColumn()
     user: User;
 

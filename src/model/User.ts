@@ -23,7 +23,7 @@ export class User {
     email: string;
 
     @Exclude()
-    @Column({ select: false })
+    @Column()
     password: string;
 
     @OneToOne(() => AuthToken, authToken => authToken.user)

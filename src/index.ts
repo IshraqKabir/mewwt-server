@@ -1,8 +1,8 @@
 import "reflect-metadata";
 import { buildSchema } from "type-graphql";
 import { resolvers } from "./config/graphql/resolvers";
-import { ApolloServer, ExpressContext } from "apollo-server-express";
-import { createConnection } from "typeorm";
+import { ApolloServer } from "apollo-server-express";
+import { createConnection, getConnection } from "typeorm";
 import { connectionOptions } from "./config/typeorm/connectionOptions";
 import express from "express";
 import cors from "cors";
@@ -11,6 +11,8 @@ import cors from "cors";
 import { TOKEN_SECRET } from "./config/consts";
 
 import jwt from "jsonwebtoken";
+import { ApolloContext } from "./types/ApolloContext";
+import { User } from "./model/User";
 
 const PORT: number = 4000;
 
@@ -38,18 +40,27 @@ const main = async () => {
 
     const server = new ApolloServer({
         schema,
-        context: async ({ res, req }) => {
-            // console.log("request headers", req.headers.authorization);
+        context: async ({ res, req }: ApolloContext) => {
+            let user: User | null = null;
             if (req.headers.authorization) {
-                console.log("user", jwt.verify(req.headers.authorization, TOKEN_SECRET))
+                try {
+                    const userInfo: any = jwt.verify(req.headers.authorization, TOKEN_SECRET);
+                    const userId = userInfo?.id;
+
+                    const userFromDB = await getConnection().getRepository(User)
+                        .findOne(userId, {
+                            relations: ["authToken"]
+                        });
+
+                    if (userFromDB) {
+                        user = userFromDB;
+                    }
+                } catch (_) { }
+
             }
 
             return {
-                user: {
-                    id: 1,
-                    name: "sfasdf",
-                    roles: ["REGULAR"]
-                },
+                user: user,
                 ...res,
                 ...req,
             }
