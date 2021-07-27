@@ -22,7 +22,6 @@ export const Auth = async (req: Request, res: Response, next: Function) => {
         }
 
         req.user = user;
-        console.log("req.user", req.user);
     } catch (err) {
         return res.status(401).json("Unauthenticated");
     }

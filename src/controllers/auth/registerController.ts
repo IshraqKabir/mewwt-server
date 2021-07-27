@@ -1,0 +1,58 @@
+import { Request, Response } from "express";
+import { check, validationResult } from "express-validator";
+import { getConnection } from "typeorm";
+import { BCRYPT_HASH_ROUNDS, TOKEN_SECRET } from "../../config/consts";
+import { User } from "../../models/User";
+import { emailShouldExist } from "../../validators/emailShouldExist";
+import { isSameToPassword } from "../../validators/isSameToPassword";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+
+export const registerValidation = [
+    check('email').isEmail().custom(emailShouldExist),
+    check('firstName').isLength({ min: 3 }),
+    check('lastName').isLength({ min: 3 }),
+    check('password').isLength({ min: 3 }),
+    check('confirmPassword').isLength({ min: 3 }).custom(isSameToPassword),
+];
+
+export const registerController = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(422).json({ errors: errors.array() });
+    }
+
+    const {
+        email,
+        firstName,
+        lastName,
+        password
+    } = req.body;
+
+    const connection = getConnection();
+
+    const userRepo = connection.getRepository(User);
+    const user = new User();
+
+    user.email = email;
+    user.firstName = firstName;
+    user.lastName = lastName;
+    user.password = await bcrypt.hash(password, BCRYPT_HASH_ROUNDS);
+
+    await userRepo.save(user);
+
+    const authToken = jwt.sign({
+        data: {
+            id: user.id
+        }
+    }, TOKEN_SECRET, { expiresIn: "100y" });
+
+    user.authToken = authToken;
+
+    await userRepo.save(user);
+
+    res.status(200).json({
+        data: { user },
+    });
+};
