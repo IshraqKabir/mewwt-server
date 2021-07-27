@@ -1,80 +1,33 @@
 import "reflect-metadata";
-import { buildSchema } from "type-graphql";
-import { resolvers } from "./config/graphql/resolvers";
-import { ApolloServer } from "apollo-server-express";
-import { createConnection, getConnection } from "typeorm";
-import { connectionOptions } from "./config/typeorm/connectionOptions";
 import express from "express";
 import cors from "cors";
 
-// dotenv config
-import { TOKEN_SECRET } from "./config/consts";
-
-import jwt from "jsonwebtoken";
-import { ApolloContext } from "./types/ApolloContext";
-import { User } from "./model/User";
-
-const PORT: number = 4000;
-
-const path = "/graphql";
+import auth from "./routes/user/auth";
+import { createConnection } from "typeorm";
+import { connectionOptions } from "./config/typeorm/connectionOptions";
+import { PORT } from "./config/consts";
 
 const main = async () => {
     const app = express();
 
-    app.use(cors({
-        origin: "https://studio.apollographql.com",
-        credentials: true,
-    }))
     await createConnection(connectionOptions);
 
-    const schema = await buildSchema({
-        resolvers: resolvers,
-        authChecker: ({ context }) => {
-            if (context.user) {
-                return true;
-            }
+    app.use(cors({
+        origin: "*",
+        credentials: true,
+    }));
 
-            return false;
-        },
-    })
+    app.use(express.json());
+    app.use(express.urlencoded({
+        extended: true
+    }));
 
-    const server = new ApolloServer({
-        schema,
-        context: async ({ res, req }: ApolloContext) => {
-            let user: User | null = null;
-            if (req.headers.authorization) {
-                try {
-                    const userInfo: any = jwt.verify(req.headers.authorization, TOKEN_SECRET);
-                    const userId = userInfo?.id;
+    app.use('/api/auth', auth);
 
-                    const userFromDB = await getConnection().getRepository(User)
-                        .findOne(userId, {
-                            relations: ["authToken"]
-                        });
-
-                    if (userFromDB) {
-                        user = userFromDB;
-                    }
-                } catch (_) { }
-
-            }
-
-            return {
-                user: user,
-                ...res,
-                ...req,
-            }
-        },
+    app.listen(PORT, () => {
+        console.log(`Server running at http://localhost:${PORT}`);
     });
 
-    await server.start();
-
-    server.applyMiddleware({ app, path })
-
-    app.listen({ port: PORT }, () => {
-        console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`);
-    })
-}
+};
 
 main();
-
