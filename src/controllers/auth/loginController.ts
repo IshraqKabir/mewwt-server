@@ -26,14 +26,14 @@ export const loginController = async (req: Request, res: Response) => {
     });
 
     if (!user) {
-        return {
+        return res.status(200).json({
             errors: [
                 {
                     param: "email",
                     msg: "Email not found"
                 }
             ],
-        };
+        });
     }
 
     const { password } = req.body;
@@ -41,19 +41,20 @@ export const loginController = async (req: Request, res: Response) => {
     let passwordMatched = await bcrypt.compare(password, user.password);
 
     if (!passwordMatched) {
-        return {
+        return res.status(200).json({
             errors: [
                 {
                     param: "password",
-                    message: "Wrong password",
-                }
-            ]
-        };
+                    msg: "Wrong password",
+                },
+            ],
+        });
     }
 
     return res.status(200).json({
         data: {
-            user: user,
-        }
+            ...user,
+            password: "",
+        },
     });
 };

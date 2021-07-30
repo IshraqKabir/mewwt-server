@@ -1,11 +1,12 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Room } from "./Room";
 
 @Entity({ name: "users" })
 export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({ unique: true })
     email: string;
 
     @Column()
@@ -16,6 +17,9 @@ export class User {
 
     @Column({ type: "text", nullable: true, select: false })
     authToken: string;
+
+    @ManyToMany(() => Room, room => room.users)
+    rooms: Room[];
 
     @Column({ select: false })
     password: string;

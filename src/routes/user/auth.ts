@@ -1,15 +1,7 @@
 import express from "express";
 import { Request, Response } from "express-serve-static-core";
-import { check, validationResult } from "express-validator";
-import { getConnection } from "typeorm";
-import { User } from "../../models/User";
-import { emailShouldNotExist } from "../../validators/emailShouldNotExist";
-import { isSameToPassword } from "../../validators/isSameToPassword";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import { BCRYPT_HASH_ROUNDS, TOKEN_SECRET } from "../../config/consts";
 import { Auth } from "../../middlewares/auth";
-import { loginController, loginValidation } from "../../controllers/auth/login";
+import { loginController, loginValidation } from "../../controllers/auth/loginController";
 import { registerController, registerValidation } from "../../controllers/auth/registerController";
 
 const router = express.Router();
@@ -28,9 +20,9 @@ router.post('/register',
 );
 
 router.get('/me',
-    Auth
-    , (req, res) => {
-        res.json(req.user);
+    (req, res, next) => Auth(req, res, next),
+    (req, res) => {
+        res.json(res.locals.user);
     });
 
 export default router;

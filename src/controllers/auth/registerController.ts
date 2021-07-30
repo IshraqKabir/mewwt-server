@@ -3,13 +3,13 @@ import { check, validationResult } from "express-validator";
 import { getConnection } from "typeorm";
 import { BCRYPT_HASH_ROUNDS, TOKEN_SECRET } from "../../config/consts";
 import { User } from "../../models/User";
-import { emailShouldExist } from "../../validators/emailShouldExist";
 import { isSameToPassword } from "../../validators/isSameToPassword";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { emailShouldNotExist } from "../../validators/emailShouldNotExist";
 
 export const registerValidation = [
-    check('email').isEmail().custom(emailShouldExist),
+    check('email').isEmail().custom(emailShouldNotExist),
     check('firstName').isLength({ min: 3 }),
     check('lastName').isLength({ min: 3 }),
     check('password').isLength({ min: 3 }),
@@ -53,6 +53,9 @@ export const registerController = async (req: Request, res: Response) => {
     await userRepo.save(user);
 
     res.status(200).json({
-        data: { user },
+        data: {
+            ...user,
+            password: "",
+        },
     });
 };

@@ -1,5 +1,5 @@
 import { ConnectionOptions } from "typeorm";
-import { User } from "../../models/User";
+import { entities } from "./entities";
 
 export const connectionOptions: ConnectionOptions = {
     type: "postgres",
@@ -8,9 +8,8 @@ export const connectionOptions: ConnectionOptions = {
     username: "ishraqkabir",
     password: "password",
     database: "test",
-    entities: [
-        User,
-    ],
+    entities: entities,
+    // dropSchema: true,
     synchronize: true,
     logging: false,
-}
+};
