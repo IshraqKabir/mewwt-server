@@ -7,7 +7,7 @@ export const connectionOptions: ConnectionOptions = {
     port: 5432,
     username: "ishraqkabir",
     password: "password",
-    database: "test",
+    database: "chaenc",
     entities: entities,
     // dropSchema: true,
     synchronize: true,

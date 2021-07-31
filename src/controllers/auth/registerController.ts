@@ -36,8 +36,8 @@ export const registerController = async (req: Request, res: Response) => {
     const user = new User();
 
     user.email = email;
-    user.firstName = firstName;
-    user.lastName = lastName;
+    user.first_name = firstName;
+    user.last_name = lastName;
     user.password = await bcrypt.hash(password, BCRYPT_HASH_ROUNDS);
 
     await userRepo.save(user);

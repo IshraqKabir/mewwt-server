@@ -1,21 +1,31 @@
 import { IsNotEmpty } from "class-validator";
-import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import { Room } from "./Room";
+import { User } from "./User";
 
 @Entity('rooms_users')
 export class RoomsUsers {
+    @Column()
+    @IsNotEmpty()
+    @PrimaryColumn()
+    user_id: number;
+
+    @Column()
+    @IsNotEmpty()
+    @PrimaryColumn()
+    room_id: number;
+
+    @ManyToOne(() => User)
+    @JoinColumn({ name: "user_id" })
+    user: User;
+
+    @ManyToOne(() => Room)
+    @JoinColumn({ name: "room_id" })
+    room: Room;
+
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)", select: false })
-    createdAt: Date;
+    created_at: Date;
 
     @UpdateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)", select: false })
-    updatedAt: Date;
-
-    @Column()
-    @IsNotEmpty()
-    @PrimaryColumn()
-    userId: number;
-
-    @Column()
-    @IsNotEmpty()
-    @PrimaryColumn()
-    roomId: number;
+    updated_at: Date;
 }

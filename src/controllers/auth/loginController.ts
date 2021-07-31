@@ -16,13 +16,13 @@ export const loginController = async (req: Request, res: Response) => {
         return res.status(422).json({ errors: errors.array() });
     }
 
-    const userRepo = getConnection().getRepository(User);
-    const user = await userRepo.findOne({
-        where:
-        {
-            email: req.body.email
+    const email = req.body.email;
+
+    const user = await getConnection().manager.findOne(User, {
+        where: {
+            email: email
         },
-        select: [ "id", "email", "firstName", "lastName", "password", "authToken", ],
+        select: [ "id", "email", "first_name", "last_name", "password", "authToken" ]
     });
 
     if (!user) {

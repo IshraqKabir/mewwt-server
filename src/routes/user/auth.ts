@@ -1,5 +1,4 @@
-import express from "express";
-import { Request, Response } from "express-serve-static-core";
+import express, { Request, Response } from "express";
 import { Auth } from "../../middlewares/auth";
 import { loginController, loginValidation } from "../../controllers/auth/loginController";
 import { registerController, registerValidation } from "../../controllers/auth/registerController";

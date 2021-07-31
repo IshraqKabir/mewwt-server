@@ -1,4 +1,6 @@
-import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Message } from "./Message";
+import { RoomsUsers } from "./RoomsUsers";
 import { User } from "./User";
 
 @Entity({ name: "rooms" })
@@ -13,19 +15,25 @@ export class Room {
     @JoinTable({
         name: "rooms_users",
         joinColumn: {
-            name: "roomId",
+            name: "room_id",
             referencedColumnName: "id"
         },
         inverseJoinColumn: {
-            name: "userId",
+            name: "user_id",
             referencedColumnName: "id",
         },
     })
     users: User[];
 
-    @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)", select: false })
-    createdAt: Date;
+    @OneToMany(() => RoomsUsers, roomsUsers => roomsUsers.room)
+    roomsUsers: RoomsUsers[];
+
+    @OneToMany(() => Message, message => message.room)
+    messages: Message[];
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)", select: false })
-    updatedAt: Date;
+    created_at: Date;
+
+    @UpdateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)", select: false })
+    updated_at: Date;
 }

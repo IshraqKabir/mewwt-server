@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import { getConnection } from "typeorm";
-import { UNAUTHENTICATED, UNAUTHORIZED } from "../../../config/consts";
+import { UNAUTHORIZED } from "../../../config/consts";
 import { Room } from "../../../models/Room";
 import { User } from "../../../models/User";
 import { pluck } from "../../../utils/pluck";
 
-export const canGetRoomUsers = async (req: Request, res: Response, next: Function, roomRelations?: string[]) => {
+export const canGetRoomMessages = async (req: Request, res: Response, next: Function, roomRelations?: string[]) => {
     const user = res.locals.user as User;
 
     const { roomId } = req.params;
