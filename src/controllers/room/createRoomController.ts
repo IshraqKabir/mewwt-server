@@ -5,6 +5,7 @@ import { Room } from "../../models/Room";
 import { RoomsUsers } from "../../models/RoomsUsers";
 import { User } from "../../models/User";
 import { checkErrors } from "../../utils/checkErrors";
+import { pluck } from "../../utils/pluck";
 
 export const createRoomValidation = [
     check('userIds').isArray({ min: 1, }),
@@ -61,8 +62,7 @@ const getPrevRoomId = async (users: User[]): Promise<number | undefined> => {
     const room = await getConnection()
         .createQueryBuilder(RoomsUsers, "ru")
         .select("ru.room_id")
-        .where("ru.user_id = :f", { f: 3 })
-        .orWhere("ru.user_id = :s", { s: 4 })
+        .where("ru.user_id IN (:...userIds)", { userIds: pluck(users, "id") })
         .groupBy("ru.room_id")
         .getRawOne();
 
