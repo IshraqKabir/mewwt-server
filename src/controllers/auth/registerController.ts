@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { check, validationResult } from "express-validator";
+import { check } from "express-validator";
 import { getConnection } from "typeorm";
 import { BCRYPT_HASH_ROUNDS, TOKEN_SECRET } from "../../config/consts";
 import { User } from "../../models/User";
@@ -7,21 +7,18 @@ import { isSameToPassword } from "../../validators/isSameToPassword";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { emailShouldNotExist } from "../../validators/emailShouldNotExist";
+import { checkErrors } from "../../utils/checkErrors";
 
 export const registerValidation = [
-    check('email').isEmail().custom(emailShouldNotExist),
-    check('firstName').isLength({ min: 3 }),
-    check('lastName').isLength({ min: 3 }),
-    check('password').isLength({ min: 3 }),
-    check('confirmPassword').isLength({ min: 3 }).custom(isSameToPassword),
+    check('email').isEmail().normalizeEmail().custom(emailShouldNotExist),
+    check('firstName').isLength({ min: 3 }).trim().escape(),
+    check('lastName').isLength({ min: 3 }).trim().escape(),
+    check('password').isLength({ min: 3 }).trim().escape(),
+    check('confirmPassword').isLength({ min: 3 }).custom(isSameToPassword).trim().escape(),
 ];
 
 export const registerController = async (req: Request, res: Response) => {
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-        return res.status(422).json({ errors: errors.array() });
-    }
+    checkErrors(req, res);
 
     const {
         email,

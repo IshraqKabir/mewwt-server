@@ -5,8 +5,8 @@ import { User } from "../../models/User";
 export const usersExist = async (req: Request, res: Response, next: Function) => {
     const { userIds } = req.body;
 
-    if (!Array.isArray(userIds)) {
-        return Promise.reject("userIds has to be an array of userIds");
+    if (!Array.isArray(userIds) || userIds.length < 1 || !Number.isInteger(userIds[ 0 ])) {
+        return res.status(422).json("userIds has to be an array of userIds");
     }
 
     const connection = getConnection();

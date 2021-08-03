@@ -1,20 +1,17 @@
 import { Request, Response } from "express";
-import { check, validationResult } from "express-validator";
+import { check } from "express-validator";
 import { getConnection } from "typeorm";
 import { User } from "../../models/User";
 import bcrypt from "bcrypt";
+import { checkErrors } from "../../utils/checkErrors";
 
 export const loginValidation = [
-    check('email').isEmail(),
-    check('password').isLength({ min: 3 }),
+    check('email').isEmail().normalizeEmail(),
+    check('password').isLength({ min: 3 }).trim().escape(),
 ];
 
 export const loginController = async (req: Request, res: Response) => {
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-        return res.status(422).json({ errors: errors.array() });
-    }
+    checkErrors(req, res);
 
     const email = req.body.email;
 

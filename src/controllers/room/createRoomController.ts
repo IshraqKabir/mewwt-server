@@ -1,23 +1,28 @@
 import { Request, Response } from "express";
-import { check, validationResult } from "express-validator";
+import { check } from "express-validator";
 import { getConnection } from "typeorm";
 import { Room } from "../../models/Room";
 import { RoomsUsers } from "../../models/RoomsUsers";
 import { User } from "../../models/User";
+import { checkErrors } from "../../utils/checkErrors";
 
 export const createRoomValidation = [
-    check('userIds').isArray({ min: 2 }),
-    check("name").optional().isLength({ min: 1 }),
+    check('userIds').isArray({ min: 1, }),
+    check("name").optional().isLength({ min: 1 }).trim().escape(),
 ];
 
 export const createRoomController = async (req: Request, res: Response) => {
-    const errors = validationResult(req);
+    checkErrors(req, res);
 
-    if (!errors.isEmpty()) {
-        return res.status(422).json({ errors: errors.array() });
+    const users = getUsers(res);
+
+    const prevRoomId = await getPrevRoomId(users);
+
+    if (prevRoomId) {
+        return res.json({
+            room_id: prevRoomId,
+        });
     }
-
-    const users = res.locals.users as User[];
 
     const connection = getConnection();
 
@@ -40,5 +45,26 @@ export const createRoomController = async (req: Request, res: Response) => {
         }))
         .execute();
 
-    res.json(room);
+    res.json({
+        room_id: room.id
+    });
+};
+
+const getUsers = (res: Response): User[] => {
+    return [
+        ...res.locals.users,
+        res.locals.user
+    ] as User[];
+};
+
+const getPrevRoomId = async (users: User[]): Promise<number | undefined> => {
+    const room = await getConnection()
+        .createQueryBuilder(RoomsUsers, "ru")
+        .select("ru.room_id")
+        .where("ru.user_id = :f", { f: 3 })
+        .orWhere("ru.user_id = :s", { s: 4 })
+        .groupBy("ru.room_id")
+        .getRawOne();
+
+    return room?.ru_room_id;
 };
