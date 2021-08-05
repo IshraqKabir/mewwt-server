@@ -18,11 +18,7 @@ export const getUsersListController = async (req: Request, res: Response) => {
 
     const users = await getConnection()
         .createQueryBuilder(User, "user")
-        .where("user.id != :userId", { userId: user.id })
-        .where("user.first_name ILIKE :searchTerm", { searchTerm: `%${searchTerm}%` })
-        .orWhere("user.last_name ILIKE :searchTerm", { searchTerm: `%${searchTerm}%` })
-        .offset(1)
-        .limit(1)
+        .where("(user.id != :userId) AND (user.first_name ILIKE :searchTerm OR user.last_name ILIKE :searchTerm)", { searchTerm: `%${searchTerm}%`, userId: user.id })
         .getMany();
 
     return res.json(users);

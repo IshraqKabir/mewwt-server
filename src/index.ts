@@ -2,7 +2,7 @@ import "reflect-metadata";
 import express from "express";
 import cors from "cors";
 
-import { createConnection, createQueryBuilder, getConnection } from "typeorm";
+import { createConnection, createQueryBuilder, getConnection, getRepository } from "typeorm";
 import { connectionOptions } from "./config/typeorm/connectionOptions";
 import { PORT } from "./config/consts";
 
@@ -10,6 +10,7 @@ import authRoutes from "./routes/user/auth";
 import roomRoutes from "./routes/room/room";
 import messageRoutes from "./routes/message/message";
 import usersRoutes from "./routes/users/users";
+import { RoomsUsers } from "./models/RoomsUsers";
 
 const main = async () => {
     const app = express();
@@ -26,6 +27,7 @@ const main = async () => {
     app.use(express.urlencoded({
         extended: true
     }));
+
 
     app.use('/api/auth', authRoutes);
     app.use('/api/room', roomRoutes);

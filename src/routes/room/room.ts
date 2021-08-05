@@ -1,9 +1,10 @@
 import express, { Request, Response } from "express";
 import { createRoomController, createRoomValidation } from "../../controllers/room/createRoomController";
+import { getRoomDetailsController, getRoomDetailsValidation } from "../../controllers/room/getRoomDetailsController";
 import { getRoomUsersController, getRoomUsersValidator } from "../../controllers/room/getRoomUsersController";
 import { getUserRoomsController } from "../../controllers/room/getUserRoomsController";
 import { Auth } from "../../middlewares/auth";
-import { canGetRoomUsers } from "../../middlewares/can/room/canGetRoomUsers";
+import { isRoomUser } from "../../middlewares/is/room/isRoomUser";
 import { usersExist } from "../../middlewares/is/usersExist";
 
 const router = express.Router();
@@ -11,8 +12,15 @@ const router = express.Router();
 router.get('/:roomId/users',
     getRoomUsersValidator,
     (req: Request, res: Response, next: Function) => Auth(req, res, next),
-    (req: Request, res: Response, next: Function) => canGetRoomUsers(req, res, next),
+    (req: Request, res: Response, next: Function) => isRoomUser(req, res, next),
     getRoomUsersController,
+);
+
+router.get('/:roomId/details',
+    getRoomDetailsValidation,
+    (req: Request, res: Response, next: Function) => Auth(req, res, next, ["messages"]),
+    (req: Request, res: Response, next: Function) => isRoomUser(req, res, next),
+    getRoomDetailsController,
 );
 
 router.post('/create',
