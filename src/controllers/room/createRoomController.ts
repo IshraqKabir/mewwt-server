@@ -58,21 +58,21 @@ const getUsers = (res: Response): User[] => {
     ] as User[];
 };
 
-const getPrevRoomId = async (users: User[]): Promise<number | null> => {
+export const getPrevRoomId = async (users: User[]): Promise<number | null> => {
     const userIds = pluck(users, "id");
 
-    const rooms = await getConnection()
+    const room = await getConnection()
         .createQueryBuilder()
         .from(subQuery => {
             return subQuery
                 .select("room_id")
-                .addSelect("count(user_id)", "c")
+                .addSelect("count(room_id)", "c")
                 .from(RoomsUsers, "ru")
                 .where("user_id IN (:...userIds)", { userIds: userIds })
                 .groupBy("room_id");
         }, "ru")
         .where("ru.c = :userCount", { userCount: userIds.length })
-        .getRawMany();
+        .getRawOne();
 
-    return rooms[ 0 ]?.room_id;
+    return room?.room_id;
 };

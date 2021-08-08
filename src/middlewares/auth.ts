@@ -1,8 +1,6 @@
 import { Request, Response } from "express";
-import jwt from "jsonwebtoken";
-import { getConnection } from "typeorm";
-import { TOKEN_SECRET, UNAUTHENTICATED } from "../config/consts";
-import { User } from "../models/User";
+import { UNAUTHENTICATED } from "../config/consts";
+import { getUserFromToken } from "../utils/getUserFromToken";
 
 export const Auth = async (req: Request, res: Response, next: Function, relations?: string[]) => {
     const token = req.headers.authorization;
@@ -11,20 +9,11 @@ export const Auth = async (req: Request, res: Response, next: Function, relation
         return res.status(401).json(UNAUTHENTICATED);
     }
 
-    try {
-        const tokenInfo: any = jwt.verify(token, TOKEN_SECRET);
+    const user = await getUserFromToken(token, relations);
 
-        const userRepo = getConnection().getRepository(User);
-        const user = await userRepo.findOne(tokenInfo.data.id, {
-            relations: relations
-        });
-
-        if (!user) {
-            return res.status(401).json(UNAUTHENTICATED);
-        }
-
-        res.locals.user = user; // adding user to the response.locals object for further use
-    } catch (err) {
+    if (user) {
+        res.locals.user = user;
+    } else {
         return res.status(401).json(UNAUTHENTICATED);
     }
 

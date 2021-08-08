@@ -1,11 +1,10 @@
 import { Request, Response } from "express";
 import { check } from "express-validator";
-import { getConnection } from "typeorm";
+import { io, roomSpaces } from "../..";
 import { Message } from "../../models/Message";
 import { Room } from "../../models/Room";
 import { User } from "../../models/User";
 import { checkErrors } from "../../utils/checkErrors";
-import { SUCCESSFUL_RESPONSE } from "../../config/consts";
 
 export const createMessageValidation = [
     check("messageText").isLength({ min: 1 }).trim().escape(),
@@ -20,16 +19,16 @@ export const createMessageController = async (req: Request, res: Response) => {
 
     const { messageText } = req.body;
 
-    await getConnection()
-        .getRepository(Message)
-        .createQueryBuilder()
-        .insert()
-        .values({
-            text: messageText,
-            sender_id: user.id,
-            room_id: room.id
-        })
-        .execute();
+    const message = new Message();
 
-    res.json(SUCCESSFUL_RESPONSE);
+    message.text = messageText;
+    message.sender_id = user.id;
+    message.room_id = room.id;
+
+    await message.save();
+
+    // io.of(`room-${room.id}`).emit("message");
+    roomSpaces.to(`room-${room.id}`).emit("message", message);
+
+    res.json(message);
 };

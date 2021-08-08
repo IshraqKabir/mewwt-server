@@ -4,7 +4,7 @@ import { getConnection } from "typeorm";
 import { User } from "../../models/User";
 
 export const getUsersListValidation = [
-    query("q").isString(),
+    query("q").isString().trim(),
 ];
 
 export const getUsersListController = async (req: Request, res: Response) => {

@@ -4,7 +4,7 @@ import { getRoomDetailsController, getRoomDetailsValidation } from "../../contro
 import { getRoomUsersController, getRoomUsersValidator } from "../../controllers/room/getRoomUsersController";
 import { getUserRoomsController } from "../../controllers/room/getUserRoomsController";
 import { Auth } from "../../middlewares/auth";
-import { isRoomUser } from "../../middlewares/is/room/isRoomUser";
+import { isRoomUserMiddleware } from "../../middlewares/is/room/isRoomUserMiddleware";
 import { usersExist } from "../../middlewares/is/usersExist";
 
 const router = express.Router();
@@ -12,14 +12,14 @@ const router = express.Router();
 router.get('/:roomId/users',
     getRoomUsersValidator,
     (req: Request, res: Response, next: Function) => Auth(req, res, next),
-    (req: Request, res: Response, next: Function) => isRoomUser(req, res, next),
+    (req: Request, res: Response, next: Function) => isRoomUserMiddleware(req, res, next),
     getRoomUsersController,
 );
 
 router.get('/:roomId/details',
     getRoomDetailsValidation,
-    (req: Request, res: Response, next: Function) => Auth(req, res, next, ["messages"]),
-    (req: Request, res: Response, next: Function) => isRoomUser(req, res, next),
+    (req: Request, res: Response, next: Function) => Auth(req, res, next, [ "messages" ]),
+    (req: Request, res: Response, next: Function) => isRoomUserMiddleware(req, res, next),
     getRoomDetailsController,
 );
 

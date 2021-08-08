@@ -5,7 +5,7 @@ import { Room } from "../../../models/Room";
 import { User } from "../../../models/User";
 import { pluck } from "../../../utils/pluck";
 
-export const isRoomUser = async (req: Request, res: Response, next: Function, roomRelations = []) => {
+export const isRoomUserMiddleware = async (req: Request, res: Response, next: Function, roomRelations = []) => {
     const user = res.locals.user as User;
 
     const { roomId } = req.params;
