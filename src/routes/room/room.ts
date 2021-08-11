@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import { createRoomController, createRoomValidation } from "../../controllers/room/createRoomController";
 import { getRoomDetailsController, getRoomDetailsValidation } from "../../controllers/room/getRoomDetailsController";
 import { getRoomUsersController, getRoomUsersValidator } from "../../controllers/room/getRoomUsersController";
+import { getUserRoomListController } from "../../controllers/room/getUserRoomListController";
 import { getUserRoomsController } from "../../controllers/room/getUserRoomsController";
 import { Auth } from "../../middlewares/auth";
 import { isRoomUserMiddleware } from "../../middlewares/is/room/isRoomUserMiddleware";
@@ -33,6 +34,11 @@ router.post('/create',
 router.get('/user/rooms',
     (req, res, next) => Auth(req, res, next),
     getUserRoomsController,
+);
+
+router.get('/user/room-list',
+    (req, res, next) => Auth(req, res, next),
+    getUserRoomListController
 );
 
 export default router;

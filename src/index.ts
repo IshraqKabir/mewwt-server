@@ -22,8 +22,9 @@ const server = http.createServer(app);
 export const io = new Server(server, {
     cors: {
         origin: "*:*",
-    }
+    },
 });
+
 export const roomSpaces = io.of(/^\/(room)-\d+$/);
 
 const main = async () => {
