@@ -16,6 +16,7 @@ import { initIo } from "./ws/initIo";
 import { initRoomIo } from "./ws/initRoomIo";
 import { User } from "./models/User";
 import { getPrevRoomId } from "./controllers/room/createRoomController";
+import { RoomsUsers } from "./models/RoomsUsers";
 
 const app = express();
 
@@ -53,6 +54,32 @@ const main = async () => {
     // socket io
     initIo();
     initRoomIo(roomSpaces);
+
+    // const users = await getConnection()
+    //     .createQueryBuilder(User, "user")
+    //     .where("id IN (:...ids)", { ids: [ 3, 5, 7 ] })
+    //     .getMany();
+
+    // const roomId = await getPrevRoomId(users);
+
+    // console.log("roomId", roomId);
+
+    // const room = await getConnection()
+    //     .createQueryBuilder()
+    //     .select("ru2.room_id")
+    //     // .addSelect("count(ru2.user_id)", "users")
+    //     .from(RoomsUsers, "ru2")
+    //     // .leftJoin(RoomsUsers, "ru2", "ru2.room_id = ru1.room_id")
+    //     .where("ru2.user_id = 3")
+    //     // .groupBy("ru2.room_id")
+    //     .getRawMany();
+
+    // const room = await getConnection()
+    //     .createQueryBuilder(RoomsUsers, "ru")
+    //     .getRawMany();
+
+    // console.log(room);
+
 
     server.listen(PORT, () => {
         console.log(`Server running at http://localhost:${PORT}`);
