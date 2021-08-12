@@ -3,7 +3,7 @@ import express from "express";
 import http from "http";
 import cors from "cors";
 
-import { createConnection } from "typeorm";
+import { createConnection, getConnection } from "typeorm";
 import { connectionOptions } from "./config/typeorm/connectionOptions";
 import { PORT } from "./config/consts";
 
@@ -14,6 +14,8 @@ import usersRoutes from "./routes/users/users";
 import { Server } from "socket.io";
 import { initIo } from "./ws/initIo";
 import { initRoomIo } from "./ws/initRoomIo";
+import { User } from "./models/User";
+import { getPrevRoomId } from "./controllers/room/createRoomController";
 
 const app = express();
 

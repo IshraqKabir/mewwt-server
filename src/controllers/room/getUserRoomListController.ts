@@ -19,7 +19,7 @@ export const getUserRoomListController = async (req: Request, res: Response) => 
         };
     });
 
-    res.json({ rooms, chatMates });
+    res.json(rooms);
 };
 
 const parseRoomName = (room: IUserRoomWithLatestMessage, chatMates: IUserChatMate[], authUserId: number) => {

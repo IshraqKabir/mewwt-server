@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { check } from "express-validator";
+import { check, oneOf } from "express-validator";
 import { getConnection } from "typeorm";
 import { Room } from "../../models/Room";
 import { RoomsUsers } from "../../models/RoomsUsers";
@@ -59,19 +59,30 @@ const getUsers = (res: Response): User[] => {
 };
 
 export const getPrevRoomId = async (users: User[]): Promise<number | null> => {
-    const userIds = pluck(users, "id");
+    const userIds = pluck(users, "id") as number[];
 
     const room = await getConnection()
         .createQueryBuilder()
         .from(subQuery => {
             return subQuery
-                .select("room_id")
-                .addSelect("count(room_id)", "c")
-                .from(RoomsUsers, "ru")
-                .where("user_id IN (:...userIds)", { userIds: userIds })
-                .groupBy("room_id");
-        }, "ru")
-        .where("ru.c = :userCount", { userCount: userIds.length })
+                .select("t1.room_id")
+                .addSelect("count(user_id)", "final_users_count")
+                .from(subQuery => {
+                    return subQuery
+                        .from(RoomsUsers, "ru")
+                        .where("ru.user_id IN (:...userIds)", { userIds });
+                }, "t1")
+                .leftJoin(subQuery => {
+                    return subQuery
+                        .select("room_id")
+                        .addSelect("count(user_id)", "users_count")
+                        .from(RoomsUsers, "ru1")
+                        .groupBy("room_id");
+                }, "t2", "t2.room_id = t1.room_id")
+                .where("t2.users_count = :userCount", { userCount: userIds.length })
+                .groupBy("t1.room_id");
+        }, "t3")
+        .where("t3.final_users_count = :userCount", { userCount: userIds.length })
         .getRawOne();
 
     return room?.room_id;
