@@ -13,9 +13,12 @@ export const getUserRoomListController = async (req: Request, res: Response) => 
     let chatMates = await getUserRoomsChatMates(user.id, pluck(rooms, "room_id"));
 
     rooms = rooms.map(room => {
+        const users = chatMates.filter(mate => mate.room_id === room.room_id);
+
         return {
             ...room,
-            room_name: parseRoomName(room, chatMates.filter(mate => mate.room_id === room.room_id), user.id)
+            room_name: parseRoomName(room, users, user.id),
+            user_count: users.length + 1,
         };
     });
 

@@ -64,7 +64,7 @@ export const getPrevRoomId = async (users: User[]): Promise<number | null> => {
     const room = await getConnection()
         .createQueryBuilder()
         .select("ru2.room_id")
-        .addSelect("array_agg(ru2.user_id)", "users")
+        // .addSelect("array_agg(ru2.user_id)", "users") // not required.
         .from(RoomsUsers, "ru1")
         .leftJoin(RoomsUsers, "ru2", "ru2.room_id = ru1.room_id")
         .where("ru1.user_id = :authUserId", { authUserId: userIds[ 0 ] })

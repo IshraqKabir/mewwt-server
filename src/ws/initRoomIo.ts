@@ -1,5 +1,4 @@
 import { Namespace } from "socket.io";
-import { io } from "..";
 import { Room } from "../models/Room";
 import { User } from "../models/User";
 import { wsAuth } from "./middlewares/wsAuth";

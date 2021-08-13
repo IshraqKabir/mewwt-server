@@ -12,6 +12,8 @@ export interface IUserRoomWithLatestMessage {
     sender_first_name: string;
     sender_last_name: string;
     room_name: string;
+    message_created_at: Date;
+    user_count?: number;
 }
 
 export const getUserRoomsWithLatestMessage = async (userId: number): Promise<IUserRoomWithLatestMessage[]> => {
@@ -31,7 +33,8 @@ export const getUserRoomsWithLatestMessage = async (userId: number): Promise<IUs
             "sender.last_name",
             "sender.email",
             "message.text",
-            "room.name as room_name"
+            "message.created_at",
+            "room.name as room_name",
         ])
         .leftJoin(Message, "message", `message.room_id = ru.room_id and message.created_at = (${subQuery.getQuery()})`)
         .leftJoin(User, "sender", "message.sender_id = sender.id")
