@@ -13,5 +13,6 @@ export const initUserIo = async (userSpaces: Namespace) => {
         console.log(`${user.first_name} has connected to user-${user.id}`);
 
         socket.join(`user-${user.id}`);
+
     });
 };

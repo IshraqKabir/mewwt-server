@@ -48,17 +48,16 @@ const propagateMessage = async (message: Message, authUserId: number) => {
             relations: [ "users" ]
         });
 
-    room?.users?.filter((user) => user.id !== authUserId)
-        .forEach((user) => {
-            userSpaces.to(`user-${user.id}`).emit("message", {
-                room_id: room.id,
-                room_name: room.name ? room.name : getRoomName(room, user.id),
-                sender_first_name: user.first_name,
-                sender_last_name: user.last_name,
-                message_created_at: message.created_at,
-                sender_email: user.email,
-                sender_id: user.id,
-                message_text: message.text,
-            } as IUserRoomWithLatestMessage);
-        });
+    room?.users?.forEach((user) => {
+        userSpaces.to(`user-${user.id}`).emit("message", {
+            room_id: room.id,
+            room_name: room.name ? room.name : getRoomName(room, user.id),
+            sender_first_name: user.first_name,
+            sender_last_name: user.last_name,
+            message_created_at: message.created_at,
+            sender_email: user.email,
+            sender_id: user.id,
+            message_text: message.text,
+        } as IUserRoomWithLatestMessage);
+    });
 };
