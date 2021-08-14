@@ -16,6 +16,9 @@ import { initIo } from "./ws/initIo";
 import { initRoomIo } from "./ws/initRoomIo";
 import { initUserIo } from "./ws/initUserIo";
 import { Room } from "./models/Room";
+import { Message } from "./models/Message";
+import { User } from "./models/User";
+import { MessageRead } from "./models/MessageRead";
 
 const app = express();
 

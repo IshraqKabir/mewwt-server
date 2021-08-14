@@ -1,5 +1,5 @@
 import { getConnection } from "typeorm";
-import { RoomsUsers } from "../../models/RoomsUsers";
+import { RoomUser } from "../../models/RoomUser";
 import { User } from "../../models/User";
 
 export interface IUserChatMate {
@@ -12,7 +12,7 @@ export interface IUserChatMate {
 
 export const getUserChatMates = async (userId: number): Promise<IUserChatMate[]> => {
     const result = await getConnection()
-        .createQueryBuilder(RoomsUsers, "ru")
+        .createQueryBuilder(RoomUser, "ru")
         .select([
             "ru.room_id as room_id",
             "u.id as id",
@@ -22,7 +22,7 @@ export const getUserChatMates = async (userId: number): Promise<IUserChatMate[]>
         ])
         .innerJoin(qb => {
             return qb
-                .from(RoomsUsers, "ru1")
+                .from(RoomUser, "ru1")
                 .where("ru1.user_id = :userId", { userId: userId, });
         }, "t1", "t1.room_id = ru.room_id")
         .leftJoin(User, "u", "ru.user_id = u.id")

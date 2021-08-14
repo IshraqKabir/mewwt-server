@@ -4,7 +4,7 @@ import { Room } from "./Room";
 import { User } from "./User";
 
 @Entity('rooms_users')
-export class RoomsUsers {
+export class RoomUser {
     @Column()
     @IsNotEmpty()
     @PrimaryColumn()

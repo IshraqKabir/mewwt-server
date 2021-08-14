@@ -1,7 +1,8 @@
 import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Message } from "./Message";
+import { MessageRead } from "./MessageRead";
 import { Room } from "./Room";
-import { RoomsUsers } from "./RoomsUsers";
+import { RoomUser } from "./RoomUser";
 
 @Entity({ name: "users" })
 export class User extends BaseEntity {
@@ -26,8 +27,11 @@ export class User extends BaseEntity {
     @OneToMany(() => Message, message => message.sender)
     messages: Message[];
 
-    @OneToMany(() => RoomsUsers, roomsUsers => roomsUsers.user)
-    roomsUsers: RoomsUsers[];
+    @OneToMany(() => RoomUser, roomUser => roomUser.user)
+    roomsUsers: RoomUser[];
+
+    @OneToMany(() => MessageRead, messageRead => messageRead.reader)
+    messageReads: MessageRead[];
 
     @Column({ select: false })
     password: string;

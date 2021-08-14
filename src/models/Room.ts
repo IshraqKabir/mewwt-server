@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Message } from "./Message";
-import { RoomsUsers } from "./RoomsUsers";
+import { RoomUser } from "./RoomUser";
 import { User } from "./User";
 
 @Entity({ name: "rooms" })
@@ -25,8 +25,8 @@ export class Room {
     })
     users: User[];
 
-    @OneToMany(() => RoomsUsers, roomsUsers => roomsUsers.room)
-    roomsUsers: RoomsUsers[];
+    @OneToMany(() => RoomUser, roomsUsers => roomsUsers.room)
+    roomsUsers: RoomUser[];
 
     @OneToMany(() => Message, message => message.room)
     messages: Message[];

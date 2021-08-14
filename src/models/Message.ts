@@ -1,4 +1,5 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { MessageRead } from "./MessageRead";
 import { Room } from "./Room";
 import { User } from "./User";
 
@@ -25,6 +26,9 @@ export class Message extends BaseEntity {
     })
     @JoinColumn({ name: "room_id" })
     room: Room;
+
+    @OneToMany(() => MessageRead, messageRead => messageRead.reader)
+    reads: MessageRead[];
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)", select: false })
     created_at: Date;
