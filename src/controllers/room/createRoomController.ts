@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { check, oneOf } from "express-validator";
+import { check } from "express-validator";
 import { getConnection } from "typeorm";
 import { Room } from "../../models/Room";
 import { RoomUser } from "../../models/RoomUser";

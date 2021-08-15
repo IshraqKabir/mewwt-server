@@ -6,7 +6,7 @@ import { User } from "../../models/User";
 import { checkErrors } from "../../utils/checkErrors";
 import { propagateMessage } from "../../utils/ws/propagateMessage";
 
-export const createMessageValidation = [
+export const createMessageValidator = [
     check("messageText").isLength({ min: 1 }).trim().escape(),
     check("roomId").isInt().escape(),
 ];

@@ -8,7 +8,7 @@ import { pluck } from "../../../utils/pluck";
 export const isRoomUserMiddleware = async (req: Request, res: Response, next: Function, roomRelations = []) => {
     const user = res.locals.user as User;
 
-    const { roomId } = req.params;
+    const { roomId } = req[ req.method === "POST" ? "body" : req.method === "GET" ? "params" : "body" ];
 
     if (!roomId) {
         return res.status(422).json("No roomId found");

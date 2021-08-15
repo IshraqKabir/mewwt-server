@@ -2,12 +2,15 @@ import { Request, Response } from "express";
 import { query } from "express-validator";
 import { getConnection } from "typeorm";
 import { User } from "../../models/User";
+import { checkErrors } from "../../utils/checkErrors";
 
 export const getUsersListValidation = [
     query("q").isString().trim(),
 ];
 
 export const getUsersListController = async (req: Request, res: Response) => {
+    checkErrors(req, res);
+
     const searchTerm = req.query.q;
 
     if (!searchTerm) {

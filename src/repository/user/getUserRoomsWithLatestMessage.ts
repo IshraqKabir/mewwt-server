@@ -15,6 +15,7 @@ export interface IUserRoomWithLatestMessage {
     room_name: string;
     message_created_at: Date;
     is_read: boolean;
+    message_id: number;
     user_count?: number;
 }
 
@@ -34,19 +35,21 @@ export const getUserRoomsWithLatestMessage = async (userId: number): Promise<IUs
             "sender.first_name",
             "sender.last_name",
             "sender.email",
+            "message.id as message_id",
             "message.text",
             "message.created_at",
             "room.name as room_name",
         ])
-        .addSelect("array_agg(message_reads.reader_id) <@ ARRAY [:...userIds]::integer[]", "isRead")
+        .addSelect("array_agg(message_reads.reader_id) <@ ARRAY [:...userIds]::integer[]", "is_read")
+        .addSelect("array_agg(message_reads.reader_id)", "readers")
         .setParameter("userIds", [ userId ])
         .leftJoin(Message, "message", `message.room_id = ru.room_id and message.created_at = (${subQuery.getQuery()})`)
-        .leftJoin(MessageRead, "message_reads", "(message.id = message_reads.message_id and message_reads.reader_id = :userId )")
-        .setParameter("userId", userId)
+        .leftJoin(MessageRead, "message_reads", "(message.id = message_reads.message_id and message_reads.reader_id = :userId )", { userId: userId })
         .leftJoin(User, "sender", "message.sender_id = sender.id")
         .where("ru.user_id = :userId", { userId: userId, })
         .groupBy("ru.room_id")
         .addGroupBy("ru.created_at")
+        .addGroupBy("message.id")
         .addGroupBy("sender.id")
         .addGroupBy("sender.first_name")
         .addGroupBy("sender.last_name")
@@ -58,5 +61,4 @@ export const getUserRoomsWithLatestMessage = async (userId: number): Promise<IUs
         .getRawMany();
 
     return roomsWithLatestMessage;
-
 };
