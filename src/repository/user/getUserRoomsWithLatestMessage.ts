@@ -4,6 +4,7 @@ import { MessageRead } from "../../models/MessageRead";
 import { Room } from "../../models/Room";
 import { RoomUser } from "../../models/RoomUser";
 import { User } from "../../models/User";
+import { pluck } from "../../utils/pluck";
 
 export interface IUserRoomWithLatestMessage {
     room_id: number;
@@ -16,6 +17,7 @@ export interface IUserRoomWithLatestMessage {
     message_created_at: Date;
     is_read: boolean;
     message_id: number;
+    reader_ids?: number[];
     user_count?: number;
 }
 
@@ -26,7 +28,7 @@ export const getUserRoomsWithLatestMessage = async (userId: number): Promise<IUs
         .addSelect("max(m.created_at)", "date")
         .where("m.room_id = ru.room_id");
 
-    const roomsWithLatestMessage = await getConnection()
+    let roomsWithLatestMessage = await getConnection()
         .createQueryBuilder(RoomUser, "ru")
         .leftJoin(Room, "room", "ru.room_id = room.id")
         .select([
@@ -40,11 +42,10 @@ export const getUserRoomsWithLatestMessage = async (userId: number): Promise<IUs
             "message.created_at",
             "room.name as room_name",
         ])
-        .addSelect("array_agg(message_reads.reader_id) <@ ARRAY [:...userIds]::integer[]", "is_read")
-        .addSelect("array_agg(message_reads.reader_id)", "readers")
+        .addSelect("array_agg(message_reads.reader_id)", "reader_ids")
         .setParameter("userIds", [ userId ])
         .leftJoin(Message, "message", `message.room_id = ru.room_id and message.created_at = (${subQuery.getQuery()})`)
-        .leftJoin(MessageRead, "message_reads", "(message.id = message_reads.message_id and message_reads.reader_id = :userId )", { userId: userId })
+        .leftJoin(MessageRead, "message_reads", "message.id = message_reads.message_id", { userId: userId })
         .leftJoin(User, "sender", "message.sender_id = sender.id")
         .where("ru.user_id = :userId", { userId: userId, })
         .groupBy("ru.room_id")
@@ -58,7 +59,26 @@ export const getUserRoomsWithLatestMessage = async (userId: number): Promise<IUs
         .addGroupBy("message.created_at")
         .addGroupBy("room.name")
         .orderBy("COALESCE(message.created_at, ru.created_at)", "DESC")
-        .getRawMany();
+        .getRawMany() as IUserRoomWithLatestMessage[];
+
+    roomsWithLatestMessage = roomsWithLatestMessage.map(rwm => {
+        let isRead = false;
+
+        // means self message
+        if (rwm.sender_id === userId) {
+            if (rwm.reader_ids && rwm.reader_ids[ 0 ]) isRead = true;
+        } else { // means other's message
+            if (rwm.reader_ids?.includes(userId)) isRead = true;
+        }
+
+        delete rwm.reader_ids;
+
+        return {
+            ...rwm,
+            is_read: isRead,
+        };
+    });
+
 
     return roomsWithLatestMessage;
 };
