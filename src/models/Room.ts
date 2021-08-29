@@ -1,4 +1,13 @@
-import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    JoinTable,
+    ManyToMany,
+    OneToMany,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+} from "typeorm";
 import { Message } from "./Message";
 import { RoomUser } from "./RoomUser";
 import { User } from "./User";
@@ -11,12 +20,12 @@ export class Room {
     @Column({ nullable: true })
     name?: string;
 
-    @ManyToMany(() => User, user => user.rooms)
+    @ManyToMany(() => User, (user) => user.rooms)
     @JoinTable({
         name: "rooms_users",
         joinColumn: {
             name: "room_id",
-            referencedColumnName: "id"
+            referencedColumnName: "id",
         },
         inverseJoinColumn: {
             name: "user_id",
@@ -25,15 +34,26 @@ export class Room {
     })
     users: User[];
 
-    @OneToMany(() => RoomUser, roomsUsers => roomsUsers.room)
+    @OneToMany(() => RoomUser, (roomsUsers) => roomsUsers.room)
     roomsUsers: RoomUser[];
 
-    @OneToMany(() => Message, message => message.room)
+    @OneToMany(() => Message, (message) => message.room)
     messages: Message[];
 
-    @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)", select: false })
+    @Column({ type: "boolean", default: false })
+    is_group: boolean;
+
+    @CreateDateColumn({
+        type: "timestamp",
+        default: () => "CURRENT_TIMESTAMP(6)",
+        select: false,
+    })
     created_at: Date;
 
-    @UpdateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)", select: false })
+    @UpdateDateColumn({
+        type: "timestamp",
+        default: () => "CURRENT_TIMESTAMP(6)",
+        select: false,
+    })
     updated_at: Date;
 }

@@ -27,7 +27,7 @@ export const createMessageController = async (req: Request, res: Response) => {
 
     await message.save();
 
-    propagateMessage(message);
+    propagateMessage(message, user);
 
     res.json(message);
 };

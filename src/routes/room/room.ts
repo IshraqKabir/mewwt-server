@@ -1,7 +1,16 @@
 import express, { Request, Response } from "express";
-import { createRoomController, createRoomValidation } from "../../controllers/room/createRoomController";
-import { getRoomDetailsController, getRoomDetailsValidation } from "../../controllers/room/getRoomDetailsController";
-import { getRoomUsersController, getRoomUsersValidator } from "../../controllers/room/getRoomUsersController";
+import {
+    createRoomController,
+    createRoomValidation,
+} from "../../controllers/room/createRoomController";
+import {
+    getRoomDetailsController,
+    getRoomDetailsValidation,
+} from "../../controllers/room/getRoomDetailsController";
+import {
+    getRoomUsersController,
+    getRoomUsersValidator,
+} from "../../controllers/room/getRoomUsersController";
 import { getUserRoomListController } from "../../controllers/room/getUserRoomListController";
 import { getUserRoomsController } from "../../controllers/room/getUserRoomsController";
 import { Auth } from "../../middlewares/auth";
@@ -10,33 +19,41 @@ import { usersExist } from "../../middlewares/is/usersExist";
 
 const router = express.Router();
 
-router.get('/:roomId/users',
+router.get(
+    "/:roomId/users",
     getRoomUsersValidator,
     (req: Request, res: Response, next: Function) => Auth(req, res, next),
-    (req: Request, res: Response, next: Function) => isRoomUserMiddleware(req, res, next),
-    getRoomUsersController,
+    (req: Request, res: Response, next: Function) =>
+        isRoomUserMiddleware(req, res, next),
+    getRoomUsersController
 );
 
-router.get('/:roomId/details',
+router.get(
+    "/:roomId/details",
     getRoomDetailsValidation,
-    (req: Request, res: Response, next: Function) => Auth(req, res, next, [ "messages" ]),
-    (req: Request, res: Response, next: Function) => isRoomUserMiddleware(req, res, next),
-    getRoomDetailsController,
+    (req: Request, res: Response, next: Function) =>
+        Auth(req, res, next, ["messages"]),
+    (req: Request, res: Response, next: Function) =>
+        isRoomUserMiddleware(req, res, next),
+    getRoomDetailsController
 );
 
-router.post('/create',
+router.post(
+    "/create",
     createRoomValidation,
     (req: Request, res: Response, next: Function) => Auth(req, res, next),
-    (req: Request, res: Response, next: Function) => usersExist(req, res, next,),
-    createRoomController,
+    (req: Request, res: Response, next: Function) => usersExist(req, res, next),
+    createRoomController
 );
 
-router.get('/user/rooms',
+router.get(
+    "/user/rooms",
     (req, res, next) => Auth(req, res, next),
-    getUserRoomsController,
+    getUserRoomsController
 );
 
-router.get('/user/room-list',
+router.get(
+    "/user/room-list",
     (req, res, next) => Auth(req, res, next),
     getUserRoomListController
 );

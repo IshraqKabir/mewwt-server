@@ -4,7 +4,6 @@ import { MessageRead } from "../../models/MessageRead";
 import { Room } from "../../models/Room";
 import { RoomUser } from "../../models/RoomUser";
 import { User } from "../../models/User";
-import { pluck } from "../../utils/pluck";
 
 export interface IUserRoomWithLatestMessage {
     room_id: number;
@@ -17,18 +16,21 @@ export interface IUserRoomWithLatestMessage {
     message_created_at: Date;
     is_read: boolean;
     message_id: number;
+    is_group: boolean;
     reader_ids?: number[];
     user_count?: number;
 }
 
-export const getUserRoomsWithLatestMessage = async (userId: number): Promise<IUserRoomWithLatestMessage[]> => {
+export const getUserRoomsWithLatestMessage = async (
+    userId: number
+): Promise<IUserRoomWithLatestMessage[]> => {
     const subQuery = getConnection()
         .createQueryBuilder(Message, "m")
         .select([]) // this is necessary for correct selection
         .addSelect("max(m.created_at)", "date")
         .where("m.room_id = ru.room_id");
 
-    let roomsWithLatestMessage = await getConnection()
+    let roomsWithLatestMessage = (await getConnection()
         .createQueryBuilder(RoomUser, "ru")
         .leftJoin(Room, "room", "ru.room_id = room.id")
         .select([
@@ -41,13 +43,23 @@ export const getUserRoomsWithLatestMessage = async (userId: number): Promise<IUs
             "message.text",
             "message.created_at",
             "room.name as room_name",
+            "room.is_group as is_group",
         ])
         .addSelect("array_agg(message_reads.reader_id)", "reader_ids")
-        .setParameter("userIds", [ userId ])
-        .leftJoin(Message, "message", `message.room_id = ru.room_id and message.created_at = (${subQuery.getQuery()})`)
-        .leftJoin(MessageRead, "message_reads", "message.id = message_reads.message_id", { userId: userId })
+        .setParameter("userIds", [userId])
+        .leftJoin(
+            Message,
+            "message",
+            `message.room_id = ru.room_id and message.created_at = (${subQuery.getQuery()})`
+        )
+        .leftJoin(
+            MessageRead,
+            "message_reads",
+            "message.id = message_reads.message_id",
+            { userId: userId }
+        )
         .leftJoin(User, "sender", "message.sender_id = sender.id")
-        .where("ru.user_id = :userId", { userId: userId, })
+        .where("ru.user_id = :userId", { userId: userId })
         .groupBy("ru.room_id")
         .addGroupBy("ru.created_at")
         .addGroupBy("message.id")
@@ -58,16 +70,18 @@ export const getUserRoomsWithLatestMessage = async (userId: number): Promise<IUs
         .addGroupBy("message.text")
         .addGroupBy("message.created_at")
         .addGroupBy("room.name")
+        .addGroupBy("room.is_group")
         .orderBy("COALESCE(message.created_at, ru.created_at)", "DESC")
-        .getRawMany() as IUserRoomWithLatestMessage[];
+        .getRawMany()) as IUserRoomWithLatestMessage[];
 
-    roomsWithLatestMessage = roomsWithLatestMessage.map(rwm => {
+    roomsWithLatestMessage = roomsWithLatestMessage.map((rwm) => {
         let isRead = false;
 
         // means self message
         if (rwm.sender_id === userId) {
-            if (rwm.reader_ids && rwm.reader_ids[ 0 ]) isRead = true;
-        } else { // means other's message
+            if (rwm.reader_ids && rwm.reader_ids[0]) isRead = true;
+        } else {
+            // means other's message
             if (rwm.reader_ids?.includes(userId)) isRead = true;
         }
 
@@ -78,7 +92,6 @@ export const getUserRoomsWithLatestMessage = async (userId: number): Promise<IUs
             is_read: isRead,
         };
     });
-
 
     return roomsWithLatestMessage;
 };

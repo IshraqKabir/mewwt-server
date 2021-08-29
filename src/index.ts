@@ -15,10 +15,6 @@ import { Server } from "socket.io";
 import { initIo } from "./ws/initIo";
 import { initRoomIo } from "./ws/initRoomIo";
 import { initUserIo } from "./ws/initUserIo";
-import { Room } from "./models/Room";
-import { Message } from "./models/Message";
-import { User } from "./models/User";
-import { MessageRead } from "./models/MessageRead";
 
 const app = express();
 
@@ -37,22 +33,26 @@ const main = async () => {
     await createConnection(connectionOptions);
 
     // express middlewares
-    app.use(cors({
-        origin: "*",
-        credentials: true,
-    }));
+    app.use(
+        cors({
+            origin: "*",
+            credentials: true,
+        })
+    );
 
     app.use(express.json());
 
-    app.use(express.urlencoded({
-        extended: true,
-    }));
+    app.use(
+        express.urlencoded({
+            extended: true,
+        })
+    );
 
     // express routes
-    app.use('/api/auth', authRoutes);
-    app.use('/api/room', roomRoutes);
-    app.use('/api/message', messageRoutes);
-    app.use('/api/users', usersRoutes);
+    app.use("/api/auth", authRoutes);
+    app.use("/api/room", roomRoutes);
+    app.use("/api/message", messageRoutes);
+    app.use("/api/users", usersRoutes);
 
     // socket io
     initIo();

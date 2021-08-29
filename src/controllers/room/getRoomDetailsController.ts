@@ -5,9 +5,7 @@ import { getRoomMessages } from "../../repository/message/getRoomMessages";
 import { checkErrors } from "../../utils/checkErrors";
 import { getRoomName } from "../../utils/getRoomName";
 
-export const getRoomDetailsValidation = [
-    param("roomId").exists().toInt(),
-];
+export const getRoomDetailsValidation = [param("roomId").exists().toInt()];
 
 export const getRoomDetailsController = async (req: Request, res: Response) => {
     checkErrors(req, res);

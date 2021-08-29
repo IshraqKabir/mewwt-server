@@ -5,34 +5,42 @@ import { Room } from "../../../models/Room";
 import { User } from "../../../models/User";
 import { pluck } from "../../../utils/pluck";
 
-export const canAddMessage = async (req: Request, res: Response, next: Function, roomRelations?: string[]) => {
+export const canAddMessage = async (
+    req: Request,
+    res: Response,
+    next: Function,
+    roomRelations?: string[]
+) => {
     const user = res.locals.user as User;
 
     const { roomId } = req.body;
 
     if (!roomId) {
-        return res.status(422).json("No roomId found");
+        res.status(422).json("No roomId found");
+        res.end();
+        return;
     }
 
     const room = await getConnection().manager.findOne(Room, {
         where: {
-            id: roomId
+            id: roomId,
         },
-        relations: roomRelations ? [ "users", ...roomRelations ] : [ "users" ]
+        relations: roomRelations ? ["users", ...roomRelations] : ["users"],
     });
 
-
     if (!room) {
-        return res.status(404).json("Room not found");
+        res.status(404).json("Room not found");
+        res.end();
+        return;
     }
 
     if (!pluck(room.users, "id").includes(user.id)) {
-        return res.status(403).json(UNAUTHORIZED);
+        res.status(403).json(UNAUTHORIZED);
+        res.end();
+        return;
     }
 
     res.locals.room = room;
 
     next();
 };
-
-
