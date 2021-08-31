@@ -11,9 +11,7 @@ export const Auth = async (
     const token = req.headers.authorization;
 
     if (!token) {
-        res.status(401).json(UNAUTHENTICATED);
-        res.end();
-        return;
+        return res.status(401).json(UNAUTHENTICATED);
     }
 
     const user = await getUserFromToken(token, relations);
@@ -21,9 +19,7 @@ export const Auth = async (
     if (user) {
         res.locals.user = user;
     } else {
-        res.status(401).json(UNAUTHENTICATED);
-        res.end();
-        return;
+        return res.status(401).json(UNAUTHENTICATED);
     }
 
     next();

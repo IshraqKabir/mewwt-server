@@ -15,6 +15,7 @@ export const wsAuth = async (socket: Socket, next: Function) => {
     if (user) {
         socket.data.user = user;
     } else {
+        console.log("ws auth failed");
         next(new Error(UNAUTHENTICATED));
         socket.disconnect();
     }

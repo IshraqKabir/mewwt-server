@@ -3,7 +3,7 @@ import express from "express";
 import http from "http";
 import cors from "cors";
 
-import { createConnection, getConnection } from "typeorm";
+import { createConnection } from "typeorm";
 import { connectionOptions } from "./config/typeorm/connectionOptions";
 import { PORT } from "./config/consts";
 

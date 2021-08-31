@@ -1,13 +1,14 @@
 import { Request, Response } from "express";
-import { param } from "express-validator";
-import { checkErrors } from "../../utils/checkErrors";
+import { param, validationResult } from "express-validator";
 
-export const getRoomUsersValidator = [
-    param("roomId").exists().toInt()
-];
+export const getRoomUsersValidator = [param("roomId").exists().toInt()];
 
 export const getRoomUsersController = (req: Request, res: Response) => {
-    checkErrors(req, res);
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(422).json({ errors: errors.array() });
+    }
 
     const { room } = res.locals;
 

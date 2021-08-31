@@ -1,10 +1,9 @@
 import { Request, Response } from "express";
-import { check } from "express-validator";
+import { check, validationResult } from "express-validator";
 import { getConnection } from "typeorm";
 import { Message } from "../../models/Message";
 import { MessageRead } from "../../models/MessageRead";
 import { User } from "../../models/User";
-import { checkErrors } from "../../utils/checkErrors";
 import { propagateMessageRead } from "../../utils/ws/propagateMessagesRead";
 
 export const readMessagesValidator = [
@@ -13,7 +12,11 @@ export const readMessagesValidator = [
 ];
 
 export const readMessagesController = async (req: Request, res: Response) => {
-    checkErrors(req, res);
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(422).json({ errors: errors.array() });
+    }
 
     const messages = res.locals.messages as Message[];
     const user = res.locals.user as User;

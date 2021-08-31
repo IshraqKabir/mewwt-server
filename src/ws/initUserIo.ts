@@ -1,57 +1,39 @@
 import { Namespace } from "socket.io";
-import { io } from "..";
-import {
-    CONNECTION,
-    DISCONNECT,
-    KNOW_USERS_STATUSES,
-    USER_LOGGED_IN,
-    USER_LOGGED_OUT,
-    USER_ONLINE_STATUSES,
-} from "../config/consts";
+import { CONNECTION, CONNECT_ERROR, DISCONNECT } from "../config/consts";
 import { User } from "../models/User";
-import { IUserOnlineStatus } from "../types/IUserOnlineStatus";
-import { pluck } from "../utils/pluck";
 import { wsAuth } from "./middlewares/wsAuth";
 import { wsCheckUser } from "./middlewares/wsCheckUser";
+import { handleUserSocketConnect } from "../services/UserSocketService/handleUserSocketConnect";
+import { handleUserSocketDisconnect } from "../services/UserSocketService/handleUserSocketDisconnect";
 
 export const initUserIo = async (userSpaces: Namespace) => {
     userSpaces.use(wsAuth);
     userSpaces.use(wsCheckUser);
 
-    userSpaces.on(CONNECTION, (socket) => {
+    userSpaces.on(CONNECTION, async (socket) => {
         const user = socket.data.user as User;
 
-        socket.on(KNOW_USERS_STATUSES, (data: number[]) => {
-            console.log(`${KNOW_USERS_STATUSES} data received on server`, data);
+        handleUserSocketConnect(user, socket);
 
-            const userOnlineStatuses: IUserOnlineStatus[] = [];
+        console.log(`${user.first_name} has loggedin`);
 
-            data.forEach((userId) => {
-                io.of(`user-${userId}`).sockets.forEach((socket) => {
-                    userOnlineStatuses.push({
-                        userId,
-                        isOnline: true,
-                    });
-                });
-            });
-
-            data.filter(
-                (userId) =>
-                    !pluck(userOnlineStatuses, "userId").includes(userId)
-            ).forEach((userId) => {
-                userOnlineStatuses.push({
-                    userId: userId,
-                    isOnline: false,
-                });
-            });
-
-            socket.emit(USER_ONLINE_STATUSES, userOnlineStatuses);
+        socket.on(DISCONNECT, (reason) => {
+            handleUserSocketDisconnect(user, socket);
+            console.log(` ${user.first_name} has disconnected ${reason}`);
         });
 
-        // socket.on(DISCONNECT, () => {
-        //     console.log(`${user.id}: ${user.first_name} has disconnected`);
-        // });
+        socket.on(CONNECT_ERROR, () => {
+            console.log("connect error");
+        });
 
         socket.join(`user-${user.id}`);
+
+        socket.on("connect_error", (error) => {
+            console.log("error", error);
+        });
+    });
+
+    userSpaces.on("connect_error", (err) => {
+        console.log("error", err);
     });
 };

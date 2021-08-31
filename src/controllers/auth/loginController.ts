@@ -1,25 +1,35 @@
 import { Request, Response } from "express";
-import { check } from "express-validator";
+import { check, validationResult } from "express-validator";
 import { getConnection } from "typeorm";
 import { User } from "../../models/User";
 import bcrypt from "bcrypt";
-import { checkErrors } from "../../utils/checkErrors";
 
 export const loginValidation = [
-    check('email').isEmail().normalizeEmail(),
-    check('password').isLength({ min: 3 }).trim().escape(),
+    check("email").isEmail().normalizeEmail(),
+    check("password").isLength({ min: 3 }).trim().escape(),
 ];
 
 export const loginController = async (req: Request, res: Response) => {
-    checkErrors(req, res);
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(422).json({ errors: errors.array() });
+    }
 
     const email = req.body.email;
 
     const user = await getConnection().manager.findOne(User, {
         where: {
-            email: email
+            email: email,
         },
-        select: [ "id", "email", "first_name", "last_name", "password", "authToken" ]
+        select: [
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+            "password",
+            "authToken",
+        ],
     });
 
     if (!user) {
@@ -27,8 +37,8 @@ export const loginController = async (req: Request, res: Response) => {
             errors: [
                 {
                     param: "email",
-                    msg: "Email not found"
-                }
+                    msg: "Email not found",
+                },
             ],
         });
     }

@@ -1,11 +1,10 @@
 import { Request, Response } from "express";
-import { check } from "express-validator";
+import { check, validationResult } from "express-validator";
 import { getConnection } from "typeorm";
 import { Message } from "../../models/Message";
 import { Room } from "../../models/Room";
 import { RoomUser } from "../../models/RoomUser";
 import { User } from "../../models/User";
-import { checkErrors } from "../../utils/checkErrors";
 import { pluck } from "../../utils/pluck";
 import { propagateMessage } from "../../utils/ws/propagateMessage";
 
@@ -16,7 +15,11 @@ export const createRoomValidation = [
 ];
 
 export const createRoomController = async (req: Request, res: Response) => {
-    checkErrors(req, res);
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(422).json({ errors: errors.array() });
+    }
 
     const users = getUsers(res);
     const user = res.locals.user as User;
@@ -89,42 +92,3 @@ export const getPrevRoomId = async (users: User[]): Promise<number | null> => {
 
     return room?.ru2_room_id;
 };
-
-// getPrevRoomId alternate queries
-// these work but are not that effecient imo
-// const room = await getConnection()
-//     .createQueryBuilder()
-//     .from(subQuery => {
-//         return subQuery
-//             .select("t1.room_id")
-//             .addSelect("count(user_id)", "final_users_count")
-//             .from(subQuery => {
-//                 return subQuery
-//                     .from(RoomsUsers, "ru")
-//                     .where("ru.user_id IN (:...userIds)", { userIds });
-//             }, "t1")
-//             .leftJoin(subQuery => {
-//                 return subQuery
-//                     .select("room_id")
-//                     .addSelect("count(user_id)", "users_count")
-//                     .from(RoomsUsers, "ru1")
-//                     .groupBy("room_id");
-//             }, "t2", "t2.room_id = t1.room_id")
-//             .where("t2.users_count = :userCount", { userCount: userIds.length })
-//             .groupBy("t1.room_id");
-//     }, "t3")
-//     .where("t3.final_users_count = :userCount", { userCount: userIds.length })
-//     .getRawOne();
-
-// const room = await getConnection()
-//     .createQueryBuilder()
-//     .select("ru2.room_id")
-//     .addSelect("array_agg(ru2.user_id)")
-//     .from(RoomsUsers, "ru1")
-//     .leftJoin(RoomsUsers, "ru2", "ru2.room_id = ru1.room_id")
-//     .where("ru1.user_id = :authUserId", { authUserId: userIds[ 0 ] })
-//     .groupBy("ru2.room_id")
-//     // .having("(array_agg(ru2.user_id) <@ ARRAY [:...userIds]::integer[] and array_agg(ru2.user_id) @> ARRAY [:...userIds]::integer[])", { userIds })
-//     .getRawOne();
-
-// console.log("room", room);

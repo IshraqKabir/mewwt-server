@@ -9,7 +9,11 @@ import {
     registerValidation,
 } from "../../controllers/auth/registerController";
 import { getUserChatMates } from "../../repository/user/getUserChatMates";
-import { User } from "../../models/User";
+import {
+    chatMatesOnlineStatusController,
+    chatMatesOnlineStatusValidation,
+} from "../../controllers/auth/chatMatesOnlineStatusController";
+import { check } from "express-validator";
 
 const router = express.Router();
 
@@ -39,6 +43,13 @@ router.get(
     async (req, res) => {
         res.json(await getUserChatMates(res.locals.user.id));
     }
+);
+
+router.post(
+    "/chat-mates-online-status",
+    chatMatesOnlineStatusValidation,
+    async (req: Request, res: Response, next: Function) => Auth(req, res, next),
+    chatMatesOnlineStatusController
 );
 
 export default router;

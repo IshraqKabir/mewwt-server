@@ -7,7 +7,7 @@ export const wsCheckUser = async (socket: Socket, next: Function) => {
 
     const user = socket.data.user as User;
 
-    const userId = name.split("-")[ name.split("-").length - 1 ];
+    const userId = name.split("-")[name.split("-").length - 1];
 
     if (parseInt(userId) !== user.id) {
         next(new Error(UNAUTHORIZED));

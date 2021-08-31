@@ -1,9 +1,8 @@
 import { Request, Response } from "express";
-import { check } from "express-validator";
+import { check, validationResult } from "express-validator";
 import { Message } from "../../models/Message";
 import { Room } from "../../models/Room";
 import { User } from "../../models/User";
-import { checkErrors } from "../../utils/checkErrors";
 import { propagateMessage } from "../../utils/ws/propagateMessage";
 
 export const createMessageValidator = [
@@ -12,7 +11,12 @@ export const createMessageValidator = [
 ];
 
 export const createMessageController = async (req: Request, res: Response) => {
-    checkErrors(req, res);
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(422).json({ errors: errors.array() });
+    }
+
 
     const room = res.locals.room as Room;
     const user = res.locals.user as User;

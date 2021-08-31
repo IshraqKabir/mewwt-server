@@ -1,15 +1,16 @@
 import { Request, Response } from "express";
-import { query } from "express-validator";
+import { query, validationResult } from "express-validator";
 import { getConnection } from "typeorm";
 import { User } from "../../models/User";
-import { checkErrors } from "../../utils/checkErrors";
 
-export const getUsersListValidation = [
-    query("q").isString().trim(),
-];
+export const getUsersListValidation = [query("q").isString().trim()];
 
 export const getUsersListController = async (req: Request, res: Response) => {
-    checkErrors(req, res);
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(422).json({ errors: errors.array() });
+    }
 
     const searchTerm = req.query.q;
 
@@ -21,7 +22,10 @@ export const getUsersListController = async (req: Request, res: Response) => {
 
     const users = await getConnection()
         .createQueryBuilder(User, "user")
-        .where("(user.id != :userId) AND (user.first_name ILIKE :searchTerm OR user.last_name ILIKE :searchTerm)", { searchTerm: `%${searchTerm}%`, userId: user.id })
+        .where(
+            "(user.id != :userId) AND (user.first_name ILIKE :searchTerm OR user.last_name ILIKE :searchTerm)",
+            { searchTerm: `%${searchTerm}%`, userId: user.id }
+        )
         .getMany();
 
     return res.json(users);
