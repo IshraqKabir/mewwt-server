@@ -4,6 +4,7 @@ import { User } from "../../models/User";
 import { IUserOnlineSocket } from "../../types/IUserOnlineSocket";
 import { IUserDisconnectedSocket } from "../../types/IUserOfflineSocket";
 import { getUserOnlineSockets } from "../../repository/user/getUserOnlineSockets";
+import { getUserOfflineSockets } from "../../repository/user/getUserOfflineSockets";
 
 export const handleUserSocketDisconnect = async (
     user: User,
@@ -35,10 +36,18 @@ export const handleUserSocketDisconnect = async (
                     loggedInAt:
                         userOnlineSockets.find(
                             (userSocket) => userSocket.socketId === socket.id
-                        ) ?? new Date(),
+                        )?.loggedInAt ?? new Date(),
                     loggedOutAt: new Date(),
                 },
             ] as IUserDisconnectedSocket[])
         )
         .exec();
+
+    redis.publish(
+        "logout",
+        JSON.stringify({
+            userId: user.id,
+            socketId: socket.id,
+        })
+    );
 };

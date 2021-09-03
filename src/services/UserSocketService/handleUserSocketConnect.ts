@@ -26,4 +26,12 @@ export const handleUserSocketConnect = async (user: User, socket: Socket) => {
             ] as IUserOnlineSocket[])
         );
     }
+
+    redis.publish(
+        "login",
+        JSON.stringify({
+            userId: user.id,
+            socketId: socket.id,
+        })
+    );
 };

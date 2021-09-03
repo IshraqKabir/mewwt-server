@@ -6,12 +6,12 @@ import { IUserOnlineSocket } from "../../types/IUserOnlineSocket";
 import { io } from "../..";
 import { IUserDisconnectedSocket } from "../../types/IUserOfflineSocket";
 
-export const chatMatesOnlineStatusValidation = [
+export const chatMatesOnlineStatusesValidation = [
     check("userIds").isArray({ min: 1 }),
 ];
 
 // post request
-export const chatMatesOnlineStatusController = async (
+export const chatMatesOnlineStatusesController = async (
     req: Request,
     res: Response
 ) => {
@@ -23,7 +23,7 @@ export const chatMatesOnlineStatusController = async (
 
     const userIds = req.body.userIds as number[];
 
-    const usersOnlineStatuses: IUserOnlineStatus[] = [];
+    const usersOnlineStatuses: { [userId: number]: IUserOnlineStatus } = {};
 
     const redisInstance = new Redis();
 
@@ -51,20 +51,30 @@ export const chatMatesOnlineStatusController = async (
     });
 
     userIds.forEach((userId) => {
-        if (io.of(`/user-${userId}`).sockets.size > 0) {
-            usersOnlineStatuses.push({
+        const sockets = io.of(`/user-${userId}`).sockets;
+
+        if (sockets.size > 0) {
+            const socketIds: string[] = [];
+
+            sockets.forEach((socket) => {
+                socketIds.push(socket.id);
+            });
+
+            usersOnlineStatuses[userId] = {
                 isOnline: true,
                 userId,
-            });
+                socketIds,
+            };
         } else {
-            usersOnlineStatuses.push({
+            usersOnlineStatuses[userId] = {
                 isOnline: false,
                 userId,
+                socketIds: [],
                 lastSeen: usersDisconnectedSockets[userId]
                     ? usersDisconnectedSockets[userId][0]?.loggedOutAt ??
                       new Date()
                     : new Date(),
-            });
+            };
         }
     });
 

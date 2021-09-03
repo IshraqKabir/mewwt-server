@@ -10,9 +10,9 @@ import {
 } from "../../controllers/auth/registerController";
 import { getUserChatMates } from "../../repository/user/getUserChatMates";
 import {
-    chatMatesOnlineStatusController,
-    chatMatesOnlineStatusValidation,
-} from "../../controllers/auth/chatMatesOnlineStatusController";
+    chatMatesOnlineStatusesController,
+    chatMatesOnlineStatusesValidation,
+} from "../../controllers/auth/chatMatesOnlineStatusesController";
 import { check } from "express-validator";
 
 const router = express.Router();
@@ -46,10 +46,10 @@ router.get(
 );
 
 router.post(
-    "/chat-mates-online-status",
-    chatMatesOnlineStatusValidation,
+    "/chat-mates-online-statuses",
+    chatMatesOnlineStatusesValidation,
     async (req: Request, res: Response, next: Function) => Auth(req, res, next),
-    chatMatesOnlineStatusController
+    chatMatesOnlineStatusesController
 );
 
 export default router;

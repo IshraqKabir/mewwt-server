@@ -17,7 +17,6 @@ export const createMessageController = async (req: Request, res: Response) => {
         return res.status(422).json({ errors: errors.array() });
     }
 
-
     const room = res.locals.room as Room;
     const user = res.locals.user as User;
 
