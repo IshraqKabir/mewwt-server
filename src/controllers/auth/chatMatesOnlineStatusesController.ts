@@ -5,6 +5,8 @@ import Redis from "ioredis";
 import { IUserOnlineSocket } from "../../types/IUserOnlineSocket";
 import { io } from "../..";
 import { IUserDisconnectedSocket } from "../../types/IUserOfflineSocket";
+import { Socket } from "socket.io";
+import { User } from "../../models/User";
 
 export const chatMatesOnlineStatusesValidation = [
     check("userIds").isArray({ min: 1 }),
@@ -50,10 +52,20 @@ export const chatMatesOnlineStatusesController = async (
         usersDisconnectedeSocketsHash[sockets[0].userId] = sockets;
     });
 
-    userIds.forEach((userId) => {
-        const sockets = io.of(`/user-${userId}`).sockets;
+    const allSockets = io.of(`/user`).sockets;
 
-        if (sockets.size > 0) {
+    userIds.forEach((userId) => {
+        const sockets: Socket[] = [];
+
+        allSockets.forEach((socket) => {
+            const socketUser = socket.data.user as User;
+
+            if (socketUser.id === userId) {
+                sockets.push(socket);
+            }
+        });
+
+        if (sockets.length > 0) {
             const socketIds: string[] = [];
 
             sockets.forEach((socket) => {

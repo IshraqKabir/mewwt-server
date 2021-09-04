@@ -1,19 +1,23 @@
 import { Namespace } from "socket.io";
-import { Room } from "../models/Room";
+import { UNAUTHORIZED } from "../config/consts";
 import { User } from "../models/User";
+import { isRoomUser } from "../utils/isRoomUser";
 import { wsAuth } from "./middlewares/wsAuth";
-import { wsIsRoomUser } from "./middlewares/wsIsRoomUser";
 
 export const initRoomIo = async (roomSpaces: Namespace) => {
     roomSpaces.use(wsAuth);
-    roomSpaces.use(wsIsRoomUser);
 
-    roomSpaces.on("connection", (socket) => {
+    roomSpaces.on("connection", async (socket) => {
         const user = socket.data.user as User;
-        const room = socket.data.room as Room;
+        const roomId = socket.handshake.auth.roomId as number;
 
-        console.log(`${user.first_name} has connected to room: ${room.id}`);
+        if (!isRoomUser(roomId, user)) {
+            socket.disconnect();
+            throw new Error(UNAUTHORIZED);
+        }
 
-        socket.join(`room-${room.id}`);
+        console.log(`${user.first_name} has connected to room: ${roomId}`);
+
+        await socket.join(`room-${roomId}`);
     });
 };

@@ -3,9 +3,9 @@ import express from "express";
 import http from "http";
 import cors from "cors";
 
-import { createConnection } from "typeorm";
+import { createConnection, getConnection } from "typeorm";
 import { connectionOptions } from "./config/typeorm/connectionOptions";
-import { DEBUG, PORT } from "./config/consts";
+import { PORT } from "./config/consts";
 
 import authRoutes from "./routes/user/auth";
 import roomRoutes from "./routes/room/room";
@@ -15,7 +15,6 @@ import { Server } from "socket.io";
 import { initIo } from "./ws/initIo";
 import { initRoomIo } from "./ws/initRoomIo";
 import { initUserIo } from "./ws/initUserIo";
-import { initRedisSubscribe } from "./redis/initRedisSubscribe";
 
 const app = express();
 
@@ -27,10 +26,8 @@ export const io = new Server(server, {
     },
 });
 
-export const roomSpaces = io.of(/^\/(room)-\d+$/);
-export const userSpaces = io.of(/^\/(user)-\d+$/);
-
-console.log("debug", DEBUG);
+export const roomSpaces = io.of("/room");
+export const userSpaces = io.of("/user");
 
 const main = async () => {
     await createConnection(connectionOptions);

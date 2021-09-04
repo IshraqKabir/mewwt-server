@@ -3,6 +3,8 @@ import { check, validationResult } from "express-validator";
 import { getConnection } from "typeorm";
 import { User } from "../../models/User";
 import bcrypt from "bcrypt";
+import { io, userSpaces } from "../..";
+import { propagateUserLogin } from "../../utils/ws/propagateUserLogin";
 
 export const loginValidation = [
     check("email").isEmail().normalizeEmail(),
@@ -57,6 +59,8 @@ export const loginController = async (req: Request, res: Response) => {
             ],
         });
     }
+
+    propagateUserLogin(user);
 
     return res.status(200).json({
         data: {
