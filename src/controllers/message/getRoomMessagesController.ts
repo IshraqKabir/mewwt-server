@@ -9,7 +9,10 @@ export const getRoomMessagesValidator = [
     query("page").optional().isInt().trim().escape(),
 ];
 
-export const getRoomMessagesController = async (req: Request, res: Response) => {
+export const getRoomMessagesController = async (
+    req: Request,
+    res: Response
+) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {

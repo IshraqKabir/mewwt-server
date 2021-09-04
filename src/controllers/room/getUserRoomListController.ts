@@ -33,6 +33,7 @@ export const getUserRoomListController = async (
 
         return {
             ...room,
+            users: users,
             room_name: parseRoomName(room, users, user.id),
             user_count: users.length + 1,
         };

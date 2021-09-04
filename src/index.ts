@@ -15,9 +15,7 @@ import { Server } from "socket.io";
 import { initIo } from "./ws/initIo";
 import { initRoomIo } from "./ws/initRoomIo";
 import { initUserIo } from "./ws/initUserIo";
-
-import Redis from "ioredis";
-const redis = new Redis();
+import { initRedisSubscribe } from "./redis/initRedisSubscribe";
 
 const app = express();
 
@@ -31,6 +29,8 @@ export const io = new Server(server, {
 
 export const roomSpaces = io.of(/^\/(room)-\d+$/);
 export const userSpaces = io.of(/^\/(user)-\d+$/);
+
+process.env.DEBUG = "* node ./logs/wsLog.ts";
 
 const main = async () => {
     await createConnection(connectionOptions);
@@ -63,34 +63,7 @@ const main = async () => {
     initUserIo(userSpaces);
 
     // redis
-    redis.subscribe("logout", (err, count) => {
-        if (err) {
-            // console.error("Failed to subscribe", err.message);
-        } else {
-            console
-                .log
-                // `Subscribed successfully! This client is currently subscribed to ${count} channels.`
-                ();
-        }
-    });
-
-    redis.subscribe("login", (err, count) => {
-        if (err) {
-            // console.error("Failed to subscribe", err.message);
-        } else {
-            // `Subscribed successfully! This client is currently subscribed to ${count} channels.`
-        }
-    });
-
-    redis.on("message", (channel, message) => {
-        console.log(`Received ${message} from ${channel}`);
-
-        if (channel === "login") {
-            userSpaces.emit("login", message);
-        } else if (channel === "logout") {
-            userSpaces.emit("logout", message);
-        }
-    });
+    initRedisSubscribe();
 
     server.listen(PORT, () => {
         console.log(`Server running at http://localhost:${PORT}`);

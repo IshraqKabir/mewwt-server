@@ -10,9 +10,12 @@ export const wsCheckUser = async (socket: Socket, next: Function) => {
     const userId = name.split("-")[name.split("-").length - 1];
 
     if (parseInt(userId) !== user.id) {
+        console.log("failed ws check user");
         next(new Error(UNAUTHORIZED));
         socket.disconnect();
     }
+
+    console.log("passed ws check user");
 
     next();
 };

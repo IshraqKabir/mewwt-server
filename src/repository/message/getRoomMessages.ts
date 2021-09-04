@@ -19,7 +19,11 @@ export const getRoomMessages = async (roomId: number, offset: number) => {
         .addSelect("array_agg(message_read.reader_id)", "readerIds")
         .from(Message, "messages")
         .leftJoin(User, "sender", "sender.id = messages.sender_id")
-        .leftJoin(MessageRead, "message_read", "message_read.message_id = messages.id")
+        .leftJoin(
+            MessageRead,
+            "message_read",
+            "message_read.message_id = messages.id"
+        )
         .where("messages.room_id = :roomId", { roomId: roomId })
         .groupBy("messages.id")
         .addGroupBy("messages.text")
@@ -33,5 +37,4 @@ export const getRoomMessages = async (roomId: number, offset: number) => {
         .offset(offset)
         .limit(20)
         .getRawMany();
-
 };

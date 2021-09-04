@@ -6,6 +6,7 @@ export const wsAuth = async (socket: Socket, next: Function) => {
     const token = socket.handshake.auth.token;
 
     if (!token) {
+        console.log("failed at wsAuth: 9");
         next(new Error(UNAUTHENTICATED));
         socket.disconnect();
     }
@@ -15,7 +16,7 @@ export const wsAuth = async (socket: Socket, next: Function) => {
     if (user) {
         socket.data.user = user;
     } else {
-        console.log("ws auth failed");
+        console.log("failed at wsAuth: 19");
         next(new Error(UNAUTHENTICATED));
         socket.disconnect();
     }
