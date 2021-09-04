@@ -62,9 +62,6 @@ const main = async () => {
     initRoomIo(roomSpaces);
     initUserIo(userSpaces);
 
-    // redis
-    initRedisSubscribe();
-
     server.listen(PORT, () => {
         console.log(`Server running at http://localhost:${PORT}`);
     });

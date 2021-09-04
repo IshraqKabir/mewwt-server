@@ -3,6 +3,7 @@ import Redis from "ioredis";
 import { User } from "../../models/User";
 import { IUserOnlineSocket } from "../../types/IUserOnlineSocket";
 import { pluck } from "../../utils/pluck";
+import { io, userSpaces } from "../..";
 
 export const handleUserSocketConnect = async (user: User, socket: Socket) => {
     const REDIS_KEY_FOR_USER = `user-${user.id}-online-sockets`;
@@ -27,11 +28,16 @@ export const handleUserSocketConnect = async (user: User, socket: Socket) => {
         );
     }
 
-    redis.publish(
-        "login",
-        JSON.stringify({
-            userId: user.id,
-            socketId: socket.id,
-        })
-    );
+    const socketIds: string[] = [];
+
+    const sockets = io.of(`/user-${user.id}`).sockets;
+
+    sockets.forEach((socket) => {
+        socketIds.push(socket.id);
+    });
+
+    userSpaces.emit("login", {
+        userId: user.id,
+        socketIds: socketIds,
+    });
 };
