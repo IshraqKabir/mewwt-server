@@ -1,7 +1,7 @@
 import { io, userSpaces } from "../..";
 import { User } from "../../models/User";
 
-export const propagateUserLogin = async (user: User) => {
+export const propagateUserLogout = async (user: User) => {
     const socketIds: string[] = [];
 
     const sockets = io.of(`/user`).sockets;
@@ -14,7 +14,7 @@ export const propagateUserLogin = async (user: User) => {
         }
     });
 
-    userSpaces.emit("login", {
+    userSpaces.emit("logout", {
         userId: user.id,
         socketIds: socketIds,
     });

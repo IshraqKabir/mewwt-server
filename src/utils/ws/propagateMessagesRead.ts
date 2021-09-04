@@ -1,5 +1,5 @@
 import { getConnection } from "typeorm";
-import { io, roomSpaces, userSpaces } from "../..";
+import { io } from "../..";
 import { Message } from "../../models/Message";
 import { RoomUser } from "../../models/RoomUser";
 

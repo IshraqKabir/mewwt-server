@@ -4,8 +4,7 @@ import { User } from "../../models/User";
 import { IUserOnlineSocket } from "../../types/IUserOnlineSocket";
 import { IUserDisconnectedSocket } from "../../types/IUserOfflineSocket";
 import { getUserOnlineSockets } from "../../repository/user/getUserOnlineSockets";
-import { getUserOfflineSockets } from "../../repository/user/getUserOfflineSockets";
-import { io, userSpaces } from "../..";
+import { propagateUserLogout } from "../../utils/ws/propagateUserLogout";
 
 export const handleUserSocketDisconnect = async (
     user: User,
@@ -44,24 +43,5 @@ export const handleUserSocketDisconnect = async (
         )
         .exec();
 
-    const socketIds: string[] = [];
-
-    const sockets = io.of(`/user-${user.id}`).sockets;
-
-    sockets.forEach((socket) => {
-        socketIds.push(socket.id);
-    });
-
-    userSpaces.emit("logout", {
-        userId: user.id,
-        socketIds: socketIds,
-    });
-
-    // redis.publish(
-    //     "logout",
-    //     JSON.stringify({
-    //         userId: user.id,
-    //         socketId: socket.id,
-    //     })
-    // );
+    propagateUserLogout(user);
 };
