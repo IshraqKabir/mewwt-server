@@ -5,7 +5,7 @@ import cors from "cors";
 
 import { createConnection } from "typeorm";
 import { connectionOptions } from "./config/typeorm/connectionOptions";
-import { PORT } from "./config/consts";
+import { DEBUG, PORT } from "./config/consts";
 
 import authRoutes from "./routes/user/auth";
 import roomRoutes from "./routes/room/room";
@@ -30,7 +30,7 @@ export const io = new Server(server, {
 export const roomSpaces = io.of(/^\/(room)-\d+$/);
 export const userSpaces = io.of(/^\/(user)-\d+$/);
 
-process.env.DEBUG = "* node ./logs/wsLog.ts";
+console.log("debug", DEBUG);
 
 const main = async () => {
     await createConnection(connectionOptions);

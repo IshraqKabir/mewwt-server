@@ -26,11 +26,9 @@ export const initUserIo = async (userSpaces: Namespace) => {
             console.log("connect error");
         });
 
-        socket.on("reconnect", () => {
-            console.log("reconnecting");
-        });
+        console.log("userId", user.id);
 
-        socket.join(`user-${user.id}`);
+        await socket.join(`user-${user.id}`);
 
         socket.on("connect_error", (error) => {
             console.log("error", error);
