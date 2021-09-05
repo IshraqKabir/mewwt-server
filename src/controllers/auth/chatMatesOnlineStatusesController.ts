@@ -43,7 +43,7 @@ export const chatMatesOnlineStatusesController = async (
         }) as [IUserDisconnectedSocket[]]) ?? [];
 
     const usersDisconnectedeSocketsHash: {
-        [userId: number]: IUserOnlineSocket[];
+        [userId: number]: IUserDisconnectedSocket[];
     } = {};
 
     usersDisconnectedSockets.forEach((sockets) => {
@@ -82,10 +82,10 @@ export const chatMatesOnlineStatusesController = async (
                 isOnline: false,
                 userId,
                 socketIds: [],
-                lastSeen: usersDisconnectedSockets[userId]
-                    ? usersDisconnectedSockets[userId][0]?.loggedOutAt ??
-                      new Date()
-                    : new Date(),
+                lastSeen: usersDisconnectedeSocketsHash[userId][0]
+                    ? usersDisconnectedeSocketsHash[userId][0].loggedOutAt ??
+                      undefined
+                    : undefined,
             };
         }
     });

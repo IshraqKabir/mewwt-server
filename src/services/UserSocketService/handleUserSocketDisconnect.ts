@@ -36,8 +36,8 @@ export const handleUserSocketDisconnect = async (
                     loggedInAt:
                         userOnlineSockets.find(
                             (userSocket) => userSocket.socketId === socket.id
-                        )?.loggedInAt ?? new Date(),
-                    loggedOutAt: new Date(),
+                        )?.loggedInAt ?? new Date().toUTCString(),
+                    loggedOutAt: new Date().toUTCString(),
                 },
             ] as IUserDisconnectedSocket[])
         )
