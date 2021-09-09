@@ -1,6 +1,8 @@
 import { Namespace } from "socket.io";
-import { UNAUTHORIZED } from "../config/consts";
+import { io } from "..";
+import { DISCONNECT, UNAUTHORIZED } from "../config/consts";
 import { User } from "../models/User";
+import { IRoomPresence } from "../types/IRoomPresence";
 import { isRoomUser } from "../utils/isRoomUser";
 import { wsAuth } from "./middlewares/wsAuth";
 
@@ -16,8 +18,20 @@ export const initRoomIo = async (roomSpaces: Namespace) => {
             throw new Error(UNAUTHORIZED);
         }
 
-        console.log(`${user.first_name} has connected to room: ${roomId}`);
-
         await socket.join(`room-${roomId}`);
+
+        io.of("/room").to(`room-${roomId}`).emit("user-joined", {
+            userId: user.id,
+            isPresent: true,
+            isTyping: false
+        } as IRoomPresence);
+
+        socket.on(DISCONNECT, () => {
+            io.of("/room").to(`room-${roomId}`).emit("user-left", {
+                userId: user.id,
+                isPresent: false,
+                isTyping: false
+            } as IRoomPresence);
+        });
     });
 };

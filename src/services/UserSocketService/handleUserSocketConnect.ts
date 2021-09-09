@@ -3,7 +3,6 @@ import Redis from "ioredis";
 import { User } from "../../models/User";
 import { IUserOnlineSocket } from "../../types/IUserOnlineSocket";
 import { pluck } from "../../utils/pluck";
-import { io, userSpaces } from "../..";
 import { propagateUserLogin } from "../../utils/ws/propagateUserLogin";
 
 export const handleUserSocketConnect = async (user: User, socket: Socket) => {

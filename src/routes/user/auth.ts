@@ -13,7 +13,6 @@ import {
     chatMatesOnlineStatusesController,
     chatMatesOnlineStatusesValidation,
 } from "../../controllers/auth/chatMatesOnlineStatusesController";
-import { check } from "express-validator";
 
 const router = express.Router();
 

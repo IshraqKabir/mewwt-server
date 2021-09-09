@@ -25,7 +25,7 @@ export const chatMatesOnlineStatusesController = async (
 
     const userIds = req.body.userIds as number[];
 
-    const usersOnlineStatuses: { [userId: number]: IUserOnlineStatus } = {};
+    const usersOnlineStatuses: { [userId: number]: IUserOnlineStatus; } = {};
 
     const redisInstance = new Redis();
 
@@ -84,7 +84,7 @@ export const chatMatesOnlineStatusesController = async (
                 socketIds: [],
                 lastSeen: usersDisconnectedeSocketsHash[userId][0]
                     ? usersDisconnectedeSocketsHash[userId][0].loggedOutAt ??
-                      undefined
+                    undefined
                     : undefined,
             };
         }
