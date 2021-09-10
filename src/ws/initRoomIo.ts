@@ -34,19 +34,35 @@ export const initRoomIo = async (roomSpaces: Namespace) => {
             } as IRoomPresence);
         });
 
-        socket.on("user-started-typing", () => {
+        socket.on("user-started-typing", ({ userIds }: { userIds: number[]; }) => {
             console.log(`${user.first_name} has started typing at room ${roomId}`);
 
             io.of("/room").to(`room-${roomId}`).emit("user-started-typing", {
                 userId: user.id
             });
+
+            io.of("/user").sockets.forEach(socket => {
+                const socketUser = socket.data.user as User;
+
+                if (userIds?.includes(socketUser?.id) && socketUser?.id !== user.id) {
+                    socket.emit("user-started-typing", ({ roomId: roomId, userId: user.id }));
+                }
+            });
         });
 
-        socket.on("user-stopped-typing", () => {
+        socket.on("user-stopped-typing", ({ userIds }: { userIds: number[]; }) => {
             console.log(`${user.first_name} has stopped typing at room ${roomId}`);
 
             io.of("/room").to(`room-${roomId}`).emit("user-stopped-typing", {
-                userId: user.id
+                userId: user.id,
+            });
+
+            io.of("/user").sockets.forEach(socket => {
+                const socketUser = socket.data.user as User;
+
+                if (userIds?.includes(socketUser?.id) && socketUser?.id !== user.id) {
+                    socket.emit("user-stopped-typing", ({ roomId: roomId, userId: user.id }));
+                }
             });
         });
     });
