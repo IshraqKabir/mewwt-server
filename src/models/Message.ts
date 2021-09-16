@@ -30,6 +30,12 @@ export class Message extends BaseEntity {
     @OneToMany(() => MessageRead, messageRead => messageRead.reader)
     reads: MessageRead[];
 
+    @Column({ nullable: true })
+    reply_to_message_id: number;
+    @ManyToOne(() => Message, message => message.reply_to_message, { nullable: true, onDelete: "NO ACTION", })
+    @JoinColumn({ name: "reply_to_message_id" })
+    reply_to_message: Message;
+
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)", select: false })
     created_at: Date;
 

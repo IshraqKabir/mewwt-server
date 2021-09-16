@@ -4,11 +4,15 @@ import { Message } from "../../models/Message";
 import { Room } from "../../models/Room";
 import { User } from "../../models/User";
 import { IUserRoomWithLatestMessage } from "../../repository/user/getUserRoomsWithLatestMessage";
+import { IReplyTo } from "../../types/IReplyTo";
 import { getRoomName } from "../getRoomName";
 
-export const propagateMessage = async (message: Message, sender: User) => {
+export const propagateMessage = async (message: Message, sender: User, replyTo?: IReplyTo) => {
     // io.of(`room-${room.id}`).emit("message");
-    io.of("/room").to(`room-${message.room_id}`).emit("message", message);
+    io.of("/room").to(`room-${message.room_id}`).emit("message", {
+        ...message,
+        ...(replyTo ?? {})
+    });
 
     const room = await getConnection()
         .getRepository(Room)
@@ -33,6 +37,7 @@ export const propagateMessage = async (message: Message, sender: User) => {
                 message_text: message.text,
                 is_read: false,
                 is_group: room.is_group,
+                message_id: message.id,
             } as IUserRoomWithLatestMessage);
     });
 };

@@ -4,8 +4,9 @@ import { MessageRead } from "../../models/MessageRead";
 import { Room } from "../../models/Room";
 import { RoomUser } from "../../models/RoomUser";
 import { User } from "../../models/User";
+import { IReplyTo } from "../../types/IReplyTo";
 
-export interface IUserRoomWithLatestMessage {
+export type IUserRoomWithLatestMessage = {
     room_id: number;
     message_text: string;
     sender_id: number;
@@ -19,7 +20,7 @@ export interface IUserRoomWithLatestMessage {
     is_group: boolean;
     reader_ids?: number[];
     user_count?: number;
-}
+};
 
 export const getUserRoomsWithLatestMessage = async (
     userId: number

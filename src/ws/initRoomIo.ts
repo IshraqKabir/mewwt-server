@@ -35,8 +35,6 @@ export const initRoomIo = async (roomSpaces: Namespace) => {
         });
 
         socket.on("user-started-typing", ({ userIds }: { userIds: number[]; }) => {
-            console.log(`${user.first_name} has started typing at room ${roomId}`);
-
             io.of("/room").to(`room-${roomId}`).emit("user-started-typing", {
                 userId: user.id
             });
@@ -51,8 +49,6 @@ export const initRoomIo = async (roomSpaces: Namespace) => {
         });
 
         socket.on("user-stopped-typing", ({ userIds }: { userIds: number[]; }) => {
-            console.log(`${user.first_name} has stopped typing at room ${roomId}`);
-
             io.of("/room").to(`room-${roomId}`).emit("user-stopped-typing", {
                 userId: user.id,
             });
