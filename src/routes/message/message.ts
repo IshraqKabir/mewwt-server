@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import { createMessageController, createMessageValidator } from "../../controllers/message/createMessageController";
 import { getRoomMessagesController, getRoomMessagesValidator } from "../../controllers/message/getRoomMessagesController";
+import { getRoomMessagesWithRangeController, getRoomMessagesWithRangeValidator } from "../../controllers/message/getRoomMessagesWithRangeController";
 import { readMessagesController, readMessagesValidator } from "../../controllers/message/readMessagesController";
 import { Auth } from "../../middlewares/auth";
 import { canAddMessage } from "../../middlewares/can/room/canAddMessage";
@@ -15,6 +16,13 @@ router.get('/room/:roomId/messages',
     (req: Request, res: Response, next: Function) => Auth(req, res, next),
     (req: Request, res: Response, next: Function) => canGetRoomMessages(req, res, next),
     getRoomMessagesController,
+);
+
+router.get('/room/:roomId/messages-with-range',
+    getRoomMessagesWithRangeValidator,
+    (req: Request, res: Response, next: Function) => Auth(req, res, next),
+    (req: Request, res: Response, next: Function) => canGetRoomMessages(req, res, next),
+    getRoomMessagesWithRangeController,
 );
 
 router.post('/send',

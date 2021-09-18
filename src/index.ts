@@ -16,6 +16,7 @@ import { initIo } from "./ws/initIo";
 import { initRoomIo } from "./ws/initRoomIo";
 import { initUserIo } from "./ws/initUserIo";
 import { getRoomPresences } from "./utils/getRoomPresences";
+import { getRoomMessagesQuery } from "./queries/getRoomMessagesQuery";
 
 const app = express();
 
